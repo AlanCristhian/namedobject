@@ -39,6 +39,9 @@ class _cached_property:
 class NamedObject:
     """Make an object with the __name__ property."""
     def __init__(self):
+        # !!!: the _get_name_from_traceback() method should be executed
+        # in the __init__() method to work. May be this have some relation
+        # with the traceback.extract_stack() method.
         self._from_traceback_name = self._get_name_from_traceback()
 
     def _get_name_from_traceback(self):
@@ -55,6 +58,8 @@ class NamedObject:
             full_name, *_ = code.split('=')
             *_, name = full_name.split('.')
             return name.strip()
+        else:
+            return None
 
     def _get_outer_globals(self, frame):
         """Yield all global variables in the higher (calling) frames."""
@@ -75,8 +80,10 @@ class NamedObject:
             if len(names) > 1:
                 raise NotImplementedError(
                     "Can't assing a unique name to multiple variables.")
-            elif len(names) == 1:
-                return names[0]
+        if len(names) == 1:
+            return names[0]
+        else:
+            raise RuntimeError("Can't found the name of this variable.")
 
     @_cached_property
     def __name__(self):
