@@ -53,7 +53,7 @@ class NamedObject:
             assign_type = assign.check(tree)
             if assign_type == "multiple":
                 raise NotImplementedError(
-                    "Can't assing a unique name to multiple variables.")
+                    "Can not assing a unique name to multiple variables.")
 
             full_name, *_ = code.split('=')
             *_, name = full_name.split('.')
@@ -79,11 +79,11 @@ class NamedObject:
                     names.append(name)
             if len(names) > 1:
                 raise NotImplementedError(
-                    "Can't assing a unique name to multiple variables.")
+                    "Can not assing a unique name to multiple variables.")
         if len(names) == 1:
             return names[0]
         else:
-            raise RuntimeError("Can't found the name of this variable.")
+            raise RuntimeError("Can not found the name of this variable.")
 
     @_cached_property
     def __name__(self):
@@ -93,7 +93,7 @@ class NamedObject:
         else:
             return self._from_traceback_name
 
-    # NOTE: I can't override the __qualname__ property. That's an cpython
+    # NOTE: I Can not override the __qualname__ property. That's an cpython
     # resctriction. See http://bugs.python.org/issue19073
     # @_cached_property
     # def __qualname__(self):
