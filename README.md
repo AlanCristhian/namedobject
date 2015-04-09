@@ -9,7 +9,7 @@ Objects with the `__name__` attribute. E.g:
 'a'
 ```
 
-Work with the unpak sintax. E.g:
+Work with the unpack sintax. E.g:
 
 ```python
 >>> import namedobject
@@ -30,7 +30,7 @@ Traceback (most recent call last):
   File "<pyshell#2>", line 1, in <module>
     a.__name__
     ...
-NotImplementedError: Can not assing a unique name to multiple variables.'
+NotImplementedError: Can not assing a unique name to multiple variables.
 >>> b.__name__
 Traceback (most recent call last):
   File "<pyshell#2>", line 1, in <module>
