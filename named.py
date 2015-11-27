@@ -26,17 +26,17 @@ class _cached_property:
     itself with an ordinary attribute. Deleting the attribute resets the
     property.
     """
-    def __init__(self, func):
-        self.func = func
+    def __init__(self, function):
+        self.function = function
 
     def __get__(self, obj, cls):
         if obj is None:
             return self
-        value = obj.__dict__[self.func.__name__] = self.func(obj)
+        value = obj.__dict__[self.function.__name__] = self.function(obj)
         return value
 
 
-class NamedObject:
+class Object:
     """Make an object with the __name__ property."""
     def __init__(self):
         # !!!: the _get_name_from_traceback() method should be executed
@@ -70,11 +70,11 @@ class NamedObject:
     def _get_name_from_globals(self):
         """Find the name looking each superior global namespace."""
         global_variables = self._get_outer_globals(inspect.currentframe())
-        for glob in global_variables:
+        for variables in global_variables:
             # CAVEAT: the same object could have many names. So I store all
             # in the names var.
             names = []
-            for name, value in glob.items():
+            for name, value in variables.items():
                 if value is self:
                     names.append(name)
             if len(names) > 1:

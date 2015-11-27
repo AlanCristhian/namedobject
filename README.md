@@ -1,10 +1,10 @@
-# namedobject
+# named
 
 Objects with the `__name__` attribute. E.g:
 
 ```python
->>> import namedobject
->>> a = namedobject.NamedObject()
+>>> import named
+>>> a = named.Object()
 >>> a.__name__
 'a'
 ```
@@ -12,8 +12,8 @@ Objects with the `__name__` attribute. E.g:
 Work with the unpack sintax. E.g:
 
 ```python
->>> import namedobject
->>> a, b = namedobject.NamedObject(), namedobject.NamedObject()
+>>> import named
+>>> a, b = named.Object(), named.Object()
 >>> a.__name__
 'a'
 >>> b.__name__
@@ -23,8 +23,8 @@ Work with the unpack sintax. E.g:
 Don't work with multiple assignment. E.g:
 
 ```python
->>> import namedobject
->>> a = b = namedobject.NamedObject()
+>>> import named
+>>> a = b = named.Object()
 >>> a.__name__
 Traceback (most recent call last):
   File "<pyshell#2>", line 1, in <module>

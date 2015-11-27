@@ -3,7 +3,7 @@ import inspect
 from itertools import chain
 import ast
 
-import namedobject
+import named
 
 
 def flatten(listOfLists):
@@ -13,7 +13,7 @@ def flatten(listOfLists):
 
 class TestAssignChecker(unittest.TestCase):
     def setUp(self):
-        self.assign = namedobject._AssignChecker()
+        self.assign = named._AssignChecker()
 
     def test_single_assignment(self):
         tree = ast.parse('a = 1')
@@ -30,11 +30,11 @@ class TestAssignChecker(unittest.TestCase):
 
 class TestNamedObject(unittest.TestCase):
     def setUp(self):
-        self.obj = namedobject.NamedObject()
+        self.obj = named.Object()
 
     def test_object_instance(self):
-        self.obj = namedobject.NamedObject()
-        self.assertTrue(isinstance(self.obj, namedobject.NamedObject))
+        self.obj = named.Object()
+        self.assertTrue(isinstance(self.obj, named.Object))
 
     def test_get_outer_globals_method(self):
         current_frame = inspect.currentframe()
@@ -42,16 +42,16 @@ class TestNamedObject(unittest.TestCase):
         self.assertIn("TestNamedObject", global_vars)
 
     def test_single_assignment(self):
-        obj = namedobject.NamedObject()
+        obj = named.Object()
         self.assertEqual(obj.__name__, "obj")
 
     def test_single_attribute_assignment(self):
-        self.obj = namedobject.NamedObject()
+        self.obj = named.Object()
         self.assertEqual(self.obj.__name__, "obj")
 
     def test_NotImplementedError_in_multiple_assignment(self):
         with self.assertRaises(NotImplementedError):
-            a = b = namedobject.NamedObject()
+            a = b = named.Object()
 
 
 if __name__ == '__main__':
