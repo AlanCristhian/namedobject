@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name="named",
     version="0.0.0",
-    packages=["named"],
+    py_modules=["named"],
 
     zip_safe=True,
     author="Alan Cristhian",
