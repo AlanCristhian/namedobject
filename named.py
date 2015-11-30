@@ -46,14 +46,22 @@ class Object:
 
     def _get_name_from_traceback(self):
         """Find the name looking the code of the traceback."""
-        *_, code = traceback.extract_stack()[-3]
+        if issubclass(type(self), Object) and not type(self) is Object:
+            _stack_position = -4
+        else:
+            _stack_position = -3
+        *_, code = traceback.extract_stack()[_stack_position]
         if code:
-            tree = ast.parse(code)
-            assign = _AssignChecker()
-            assign_type = assign.check(tree)
-            if assign_type == "multiple":
-                raise NotImplementedError(
-                    "Can not assing a unique name to multiple variables.")
+            try:
+                tree = ast.parse(code)
+                assign = _AssignChecker()
+                assign_type = assign.check(tree)
+                if assign_type == "multiple":
+                    raise NotImplementedError(
+                        "Can not assing a unique name to multiple variables.")
+            except SyntaxError:
+                # SyntaxError is raised if the line was broke.
+                pass
 
             full_name, *_ = code.split('=')
             *_, name = full_name.split('.')

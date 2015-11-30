@@ -53,6 +53,14 @@ class TestNamedObject(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             a = b = named.Object()
 
+    def test_subclass(self):
+        class SubClass(named.Object):
+            def __init__(self):
+                super().__init__()
+        self.obj = SubClass()
+        self.assertEqual(self.obj.__name__, "obj")
+
+
 
 if __name__ == '__main__':
     unittest.main()
