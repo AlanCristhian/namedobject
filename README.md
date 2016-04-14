@@ -1,5 +1,8 @@
 # named
 
+
+## `named.Object()` class
+
 Objects with the `__name__` attribute. E.g:
 
 ```python
@@ -24,7 +27,7 @@ You can use a shorter syntax:
 
 ```python
 >>> import named
->>> a, b, c = named.Object()*3
+>>> a, b, c = named.Object(3)
 >>> a
 a
 >>> b
@@ -92,3 +95,38 @@ Also, multiple inheritance is allowed.
 ```
 
 **Warning:** See how I initialize bot `Numeric` and `named.Object` base clases.
+
+
+## `named.Atom()` class
+
+An atom is a string that their name is equal to their value.
+
+```python
+>>> from named import Atom
+>>> _GLOBAL_CONSTANT = Atom()
+>>> _GLOBAL_CONSTANT
+'_GLOBAL_CONSTANT'
+>>> isinstance(_GLOBAL_CONSTANT, str)
+True
+>>> _GLOBAL_CONSTANT == '_GLOBAL_CONSTANT'
+True
+```
+
+You can use the unpack sequence syntax:
+
+```python
+>>> from named import Atom
+>>> a, b, c = Atom(3)
+>>> a
+'a'
+>>> b
+'b'
+>>> 'c'
+```
+
+The argument that you pass to the `Atom` class is the amount of object that you
+whant to create.
+
+## TODO: `named.Global` class
+## TODO: `named.NonLocal` class
+## TODO: `named.OutherLocal` class
