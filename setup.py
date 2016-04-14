@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="named",
-    version="0.0.0",
+    version="0.0.1",
     py_modules=["named"],
 
     zip_safe=True,
