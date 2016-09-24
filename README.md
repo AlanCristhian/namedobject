@@ -1,132 +1,131 @@
-# named
+# name
 
-
-## `named.Object()` class
-
-Objects with the `__name__` attribute. E.g:
+A library with a base class that stores the assigned name of an object.
 
 ```python
->>> import named
->>> a = named.Object()
->>> a.__name__
+>>> import name
+>>> a = name.AutoName()
+>>> a.__assigned_name__
 'a'
 ```
 
-Work with the unpack sintax. E.g:
+## Installation
+
+```shell
+$ pip install git+https://github.com/AlanCristhian/name.git
+```
+
+## Tutorial
+
+This module only have one class: ``AutoName``. This creates an object with the
+`__assigned_name__` attribute that stores the name. E.g:
 
 ```python
->>> import named
->>> a, b = named.Object(), named.Object()
->>> a.__name__
+>>> import name
+>>> a = name.AutoName()
+>>> a.__assigned_name__
 'a'
->>> b.__name__
+```
+
+You can create multiples variables using the unpack sequence syntax. To do that
+you must pass the amount of object that you want as argument.
+
+```python
+>>> import name
+>>> a, b, c = name.AutoName(3)
+>>> a.__assigned_name__
+'a'
+>>> b.__assigned_name__
 'b'
+>>> c.__assigned_name__
+'c'
 ```
 
-You can use a shorter syntax:
+To make your own subclass that inherit from `name.AutoName`, you must chall
+the `__init__` method.
 
 ```python
->>> import named
->>> a, b, c = named.Object(3)
->>> a
-a
->>> b
-b
->>> c
-c
-```
-
-Don't work with multiple assignment. E.g:
-
-```python
->>> import named
->>> a = b = named.Object()
->>> a.__name__
-Traceback (most recent call last):
-  File "<pyshell#2>", line 1, in <module>
-    a.__name__
-    ...
-NotImplementedError: Can not assing a unique name to multiple variables.
->>> b.__name__
-Traceback (most recent call last):
-  File "<pyshell#2>", line 1, in <module>
-    a.__name__
-    ...
-NotImplementedError: Can not assing a unique name to multiple variables.
-```
-
-Note that the error is raised only wen you get the `__name__` attribute.
-
-To make your own subclass that inherit from named.Object, you must chall the
-__init__ method.
-
-```python
->>> import named
->>> class Child(named.Object):
-...     def __init__(self, arg):
-...         super().__init__()
-...         self.arg = arg
+>>> import name
+>>> class Number(name.AutoName):
+...     def __init__(self, value, count=0):
+...         super().__init__(count)
+...         self.value = value
 ...
->>> a = Child(1000000)
->>> a.__name__
+>>> a = Number(1)
+>>> a.__assigned_name__
 "a"
->>> a.arg
-1000000
+>>> a.value
+1
 ```
 
 Also, multiple inheritance is allowed.
 
 ```python
->>> import named
+>>> import name
 ... class Numeric:
 ...     def __init__(self, type):
-...         self.__type__ = type
+...         self.type = type
 ...
->>> class Symbol(Numeric, named.Object):
-...     def __init__(self, type):
+>>> class Symbol(Numeric, name.AutoName):
+...     def __init__(self, type, count=0):
 ...         Numeric.__init__(self, type)
-...         named.Object.__init__(self)
+...         name.AutoName.__init__(self, count)
 ...
->>> x = Symbol(complex)
->>> x.__name__
-"x"
->>> x.__type__
+>>> c = Symbol(complex)
+>>> c.__assigned_name__
+'c'
+>>> c.type
 <class 'complex'>
 ```
 
-**Warning:** See how I initialize bot `Numeric` and `named.Object` base clases.
+**Warning:** See how I initialize bot `Numeric` and `name.AutoName`
+base clases.
 
+## Gotchas
 
-## `named.Atom()` class
+### Multiple assignment syntax
 
-An atom is a string that their name is equal to their value.
-
-```python
->>> from named import Atom
->>> _GLOBAL_CONSTANT = Atom()
->>> _GLOBAL_CONSTANT
-'_GLOBAL_CONSTANT'
->>> isinstance(_GLOBAL_CONSTANT, str)
-True
->>> _GLOBAL_CONSTANT == '_GLOBAL_CONSTANT'
-True
-```
-
-You can use the unpack sequence syntax:
+They wont work with multiple assignment. E.g:
 
 ```python
->>> from named import Atom
->>> a, b, c = Atom(3)
->>> a
-'a'
->>> b
-'b'
->>> 'c'
+>>> import name
+>>> a = b = name.AutoName()
+>>> a.__assigned_name__
+Traceback (most recent call last):
+  File "<pyshell#2>", line 1, in <module>
+    a.__assigned_name__
+    ...
+NotImplementedError: Can not assign a unique name to multiple variables.
+>>> b.__assigned_name__
+Traceback (most recent call last):
+  File "<pyshell#2>", line 1, in <module>
+    a.__assigned_name__
+    ...
+NotImplementedError: Can not assign a unique name to multiple variables.
 ```
 
-The argument that you pass to the `Atom` class is the amount of object that you
-whant to create.
+Note that the error is raised only wen you get the `__assigned_name__`
+attribute.
 
-## TODO: `named.Global` class
-## TODO: `named.NonLocal` class
-## TODO: `named.OutherLocal` class
+### __assigned_name__ in a subclass
+
+If you make a subclass of `AutoName`, you can not access to the
+`__assigned_name__` property from the `__init__` method.
+
+
+```python
+>>> import name
+>>> class Number(name.AutoName):
+...     def __init__(self, count=0):
+...         super().__init__(count)
+...         self.name = self.__assigned_name__
+...
+>>> n = Number()
+>>> n.name
+'self'
+>>> n.__assigned_name__
+'self'
+```
+
+As you can see, the response is wrong. That is because `__assigned_name__` is a
+method. They can find the name of the object after the object was created.
