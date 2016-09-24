@@ -1,15 +1,16 @@
 from setuptools import setup
 
 setup(
-    name="named",
-    version="0.0.1",
-    py_modules=["named"],
+    name="name",
+    version="0.0.3",
+    py_modules=["name"],
 
     zip_safe=True,
     author="Alan Cristhian",
     author_email="alan.cristh@gmail.com",
-    description="Objects with the `__name__` attribute.",
+    description="A library with a base class that "\
+                "stores the assigned name of an object.",
     license="MIT",
     keywords="data structure",
-    url="https://github.com/AlanCristhian/named",
+    url="https://github.com/AlanCristhian/name",
 )
