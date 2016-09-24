@@ -1,9 +1,9 @@
 """A library with a base class that stores the assigned name of an object.
 
-  >>> import name
-  >>> a = name.AutoName()
-  >>> a.__assigned_name__
-  'a'
+>>> import name
+>>> a = name.AutoName()
+>>> a.__assigned_name__
+'a'
 """
 
 import inspect
