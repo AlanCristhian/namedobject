@@ -81,6 +81,9 @@ class AutoName:
     def __assigned_name__(self) -> str:
         """Find the name of the instance of the current class."""
         if self.__name is None:
-            frame = inspect.currentframe().f_back
-            self.__name = self._find_name(frame)
+            frame: Optional[FrameType] = inspect.currentframe()
+            if frame is None:
+                raise NameError("Can not find the name of this object.")
+            else:
+                self.__name = self._find_name(frame.f_back)
         return self.__name
