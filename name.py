@@ -10,11 +10,12 @@ from __future__ import annotations
 
 import inspect
 
-from types import FrameType
+from types import FrameType, ModuleType
 from typing import Generator, Iterator, Dict, Any, Optional
 
 
 __all__ = ["AutoName"]
+__version__ = "0.0.5"
 
 
 # Yields all locals variables in the higher (calling) frames
@@ -63,7 +64,10 @@ class AutoName:
             # assignment syntax".
             names = []
             for name, value in variables.items():
-                if value is self:
+                if isinstance(value, ModuleType):
+                    names.extend(attr for attr in dir(value)
+                                 if getattr(value, attr) is self)
+                elif value is self:
                     names.append(name)
             if names:
                 scopes.append(names)

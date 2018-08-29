@@ -4,6 +4,7 @@ from typing import no_type_check
 import unittest
 
 import name
+import test_module
 
 
 class AutoNameSuite(unittest.TestCase):
@@ -74,6 +75,12 @@ class AutoNameSuite(unittest.TestCase):
 
         a, b, c = Atom(3)
         self.assertEqual(repr((a, b, c)), "(a, b, c)")
+
+    def test_object_intest_module(self) -> None:
+        self.assertEqual(test_module.obj.__assigned_name__, "obj")
+
+    def test_object_in_library(self) -> None:
+        self.assertEqual(_library.test_module.Class().__assigned_name__, "Class")
 
 
 if __name__ == '__main__':
