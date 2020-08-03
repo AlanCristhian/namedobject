@@ -15,10 +15,13 @@ from typing import Generator, Iterator, Dict, Any, Optional, List, Set
 
 
 __all__ = ["AutoName"]
-__version__ = "0.0.6"
+__version__ = "0.0.7"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
+
+
+_NOT_FOUND_EXCEPTION = NameError("Can not be found the name of this object.")
 
 
 # Yields all locals variables in the higher (calling) frames
@@ -29,13 +32,24 @@ def _get_outer_locals(frame: FrameType = None) -> _FrameGenerator:
 
 
 class AutoName:
-    """ Creates an object with the '__assigned_name__'
-    attribute that stores the name of such object.
+    """ Creates an object that stores the name of itself.
 
     >>> import name
     >>> a = name.AutoName()
     >>> a.__assigned_name__
     'a'
+
+    It can also creates multiples variables using the unpack sequence syntax.
+    To do that you must pass the amount of object that you want as argument.
+
+    >>> import name
+    >>> a, b, c = name.AutoName(3)
+    >>> a.__assigned_name__
+    'a'
+    >>> b.__assigned_name__
+    'b'
+    >>> c.__assigned_name__
+    'c'
 
     """
     def __init__(self, count: int = 0) -> None:
@@ -66,10 +80,11 @@ class AutoName:
             # assign the object to multiples variables with the "multiple
             # assignment syntax".
             names: List[str] = []
-            seen: Set[str] = set()
+            m_seen: Set[ModuleType] = set()  # modules seen
+            t_seen: Set[type] = set()  # types seen
 
             for name, value in variables.items():
-                self._search_recursively(value, names, name, seen)
+                self._search_recursively(value, names, name, m_seen, t_seen)
             if names:
                 scopes.append(names)
         if scopes:
@@ -81,9 +96,9 @@ class AutoName:
                     "Can not assign multiples names to the same object.")
             else:
                 return names[0]
-        raise NameError("Can not find the name of this object.")
+        raise _NOT_FOUND_EXCEPTION
 
-    def _search_recursively(self, value, names, name, seen):
+    def _search_recursively(self, value, names, name, m_seen, t_seen):
 
         # search the name in the frame
         if value is self:
@@ -91,28 +106,29 @@ class AutoName:
 
         # Search the name in a namespace
         elif isinstance(value, type):
+            if value in t_seen:
+                return
+            t_seen.add(value)
             for attr in dir(value):
-                if attr != "__abstractmethods__":
-                    if getattr(value, attr) is self:
-                        names.append(attr)
+                if getattr(value, attr, None) is self:
+                    names.append(attr)
 
         # Search the name in a module
         elif isinstance(value, ModuleType):
-            if value in seen:
+            if value in m_seen:
                 return
-            else:
-                seen.add(value)
-                m_locals = ((key, getattr(value, key)) for key in dir(value))
-                for name_i, value_i in m_locals:
-                    self._search_recursively(value_i, names, name_i, seen)
+            m_seen.add(value)
+            for key in dir(value):
+                self._search_recursively(
+                    getattr(value, key), names, key, m_seen, t_seen)
 
     @property
     def __assigned_name__(self) -> str:
-        """Find the name of the instance of the current class."""
+        """Search the name of the instance of the current class."""
         if self.__name is None:
             frame: Optional[FrameType] = inspect.currentframe()
             if frame is None:
-                raise NameError("Can not find the name of this object.")
+                raise _NOT_FOUND_EXCEPTION
             else:
                 self.__name = self._search_name(frame.f_back)
         return self.__name
