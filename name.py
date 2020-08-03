@@ -8,14 +8,14 @@
 
 from __future__ import annotations
 
-import inspect
-
 from types import FrameType, ModuleType
-from typing import Generator, Iterator, Dict, Any, Optional, List, Set
+from typing import (Generator, Iterator, Dict, Any, Optional, List, Set,
+                    Optional)
+import inspect
 
 
 __all__ = ["AutoName"]
-__version__ = "0.0.7"
+__version__ = "0.0.8"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -25,7 +25,7 @@ _NOT_FOUND_EXCEPTION = NameError("Can not be found the name of this object.")
 
 
 # Yields all locals variables in the higher (calling) frames
-def _get_outer_locals(frame: FrameType = None) -> _FrameGenerator:
+def _get_outer_locals(frame: Optional[FrameType]) -> _FrameGenerator:
     while frame:
         yield frame.f_locals
         frame = frame.f_back
@@ -52,7 +52,7 @@ class AutoName:
     'c'
 
     """
-    def __init__(self, count: int = 0) -> None:
+    def __init__(self, count: int = 0):
         assert count >= 0, "Expected positive 'int' number, got '%r'" % count
         self.__count = count
         self.__name: Optional[str] = None
@@ -66,14 +66,13 @@ class AutoName:
         return (type(self)() for _ in range(self.__count))
 
     # Search the assigned name of the current object.
-    def _search_name(self, frame: FrameType = None) -> str:
-        scope = _get_outer_locals(frame)
+    def _search_name(self, frame: Optional[FrameType]) -> str:
 
         # NOTE: The same object could have many names in differents scopes.
         # So, I stores all names in the 'scopes' var. The valid name is one
         # that is in the last scope.
         scopes = []
-        for variables in scope:
+        for variables in _get_outer_locals(frame):
 
             # NOTE: An object could have various names in the same scope. So,
             # I stores all in the 'names' var. This situation happen when user
@@ -98,8 +97,14 @@ class AutoName:
                 return names[0]
         raise _NOT_FOUND_EXCEPTION
 
-    def _search_recursively(self, value, names, name, m_seen, t_seen):
-
+    def _search_recursively(
+        self,
+        value: Any,
+        names: List[str],
+        name: str,
+        m_seen: Set[ModuleType],
+        t_seen: Set[type],
+    ) -> None:
         # search the name in the frame
         if value is self:
             names.append(name)
@@ -112,6 +117,7 @@ class AutoName:
             for attr in dir(value):
                 if getattr(value, attr, None) is self:
                     names.append(attr)
+                    return
 
         # Search the name in a module
         elif isinstance(value, ModuleType):
