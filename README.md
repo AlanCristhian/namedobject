@@ -81,7 +81,7 @@ Also, multiple inheritance is allowed.
 **Warning:** See how I initialize bot `Numeric` and `name.AutoName`
 base clases.
 
-## Gotchas
+## Caveats
 
 ### Multiple assignment syntax
 
@@ -95,23 +95,22 @@ Traceback (most recent call last):
   File "<pyshell#2>", line 1, in <module>
     a.__assigned_name__
     ...
-NotImplementedError: Can not assign a unique name to multiple variables.
+NotImplementedError: Can not assign multiples names to the same object.
 >>> b.__assigned_name__
 Traceback (most recent call last):
   File "<pyshell#2>", line 1, in <module>
     a.__assigned_name__
     ...
-NotImplementedError: Can not assign a unique name to multiple variables.
+NotImplementedError: Can not assign multiples names to the same object.
 ```
 
 Note that the error is raised only wen you get the `__assigned_name__`
 attribute.
 
-### __assigned_name__ in a subclass
+### __assigned_name__ in the body of __init__
 
 If you make a subclass of `AutoName`, you can not access to the
 `__assigned_name__` property from the `__init__` method.
-
 
 ```python
 >>> import name
@@ -129,3 +128,19 @@ If you make a subclass of `AutoName`, you can not access to the
 
 As you can see, the response is wrong. That is because `__assigned_name__` is a
 method. They can find the name of the object after the object was created.
+
+**To solve that** make a *getter* method:
+
+```python
+>>> import name
+>>> class Number(name.AutoName):
+...     def __init__(self, count=0):
+...         super().__init__(count)
+...     @property
+...     def name(self):
+...         return self.__assigned_name__
+...
+>>> n = Number()
+>>> n.name
+'n'
+```
