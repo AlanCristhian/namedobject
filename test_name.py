@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import no_type_check
 import unittest
 
 import name
-import test_module
+import _module
+import _library._inner
 
 
 class AutoNameSuite(unittest.TestCase):
@@ -17,7 +17,7 @@ class AutoNameSuite(unittest.TestCase):
         self.assertEqual(obj.__assigned_name__, "obj")
 
     def test_NameError_in_multiple_assignment(self) -> None:
-        description = "Can not assign a unique name to multiple variables\."
+        description = r"Can not assign multiples names to the same object."
         with self.assertRaisesRegex(NameError, description):
             a = b = name.AutoName()
             a.__assigned_name__
@@ -29,12 +29,6 @@ class AutoNameSuite(unittest.TestCase):
         x, y = name.AutoName(2)
         self.assertEqual(x.__assigned_name__, "x")
         self.assertEqual(y.__assigned_name__, "y")
-
-    @no_type_check
-    def test_count_argument_type(self) -> None:
-        description = "Expected 'int' object, got 'float'"
-        with self.assertRaisesRegex(AssertionError, description):
-            x, y = name.AutoName(3.5)
 
     def test_count_sign(self) -> None:
         description = "Expected positive 'int' number, got '-2'"
@@ -76,11 +70,89 @@ class AutoNameSuite(unittest.TestCase):
         a, b, c = Atom(3)
         self.assertEqual(repr((a, b, c)), "(a, b, c)")
 
-    def test_object_intest_module(self) -> None:
-        self.assertEqual(test_module.obj.__assigned_name__, "obj")
+    def test_assigned_name_in_a_namespace(self) -> None:
+        class Namespace:
+            attr = name.AutoName()
+        self.assertEqual(Namespace.attr.__assigned_name__, "attr")
 
-    def test_object_in_library(self) -> None:
-        self.assertEqual(_library.test_module.Class().__assigned_name__, "Class")
+    def test___assigned_name___in___init___method(self):
+        class Number(name.AutoName):
+            def __init__(self, count=0):
+                super().__init__(count)
+
+            @property
+            def name(self):
+                return self.__assigned_name__
+        n = Number()
+        self.assertEqual(n.name, "n")
+
+
+class ModuleSuite(unittest.TestCase):
+    def test_single_assignment_in_module(self) -> None:
+        self.assertEqual(_module.obj_1.__assigned_name__, "obj_1")
+
+    def test_NameError_in_multiple_assignment_in_module(self) -> None:
+        description = r"Can not assign multiples names to the same object."
+        with self.assertRaisesRegex(NameError, description):
+            _module.a.__assigned_name__
+        with self.assertRaisesRegex(NameError, description):
+            _module.b.__assigned_name__
+
+    def test_unpacking_in_module(self) -> None:
+        self.assertEqual(_module.c.__assigned_name__, "c")
+        self.assertEqual(_module.d.__assigned_name__, "d")
+
+    def test_subclass(self) -> None:
+        self.assertEqual(_module.obj_2.__assigned_name__, "obj_2")
+
+    def test_multiple_inheritance(self) -> None:
+        self.assertEqual(_module.obj_3.__assigned_name__, "obj_3")
+        self.assertEqual(_module.obj_3.__type__, complex)
+
+    def test_assigned_name_in_a_method_of_the_child_class(self) -> None:
+        """ Test the stored name in a method of a class that inherit from
+        `name.AutoName`.
+        """
+        expected = repr((_module.e, _module.f, _module.g))
+        self.assertEqual(expected, "(e, f, g)")
+
+    def test_assigned_name_in_a_namespace(self) -> None:
+        self.assertEqual(_module.Namespace.attr.__assigned_name__, "attr")
+
+
+class LibrarySuite(unittest.TestCase):
+    def test_single_assignment_in_module(self) -> None:
+        self.assertEqual(_library._inner.obj_1.__assigned_name__, "obj_1")
+
+    def test_NameError_in_multiple_assignment_in_module(self) -> None:
+        description = r"Can not assign multiples names to the same object."
+        with self.assertRaisesRegex(NameError, description):
+            _library._inner.a.__assigned_name__
+        with self.assertRaisesRegex(NameError, description):
+            _library._inner.b.__assigned_name__
+
+    def test_unpacking_in_module(self) -> None:
+        self.assertEqual(_library._inner.c.__assigned_name__, "c")
+        self.assertEqual(_library._inner.d.__assigned_name__, "d")
+
+    def test_subclass(self) -> None:
+        self.assertEqual(_library._inner.obj_2.__assigned_name__, "obj_2")
+
+    def test_multiple_inheritance(self) -> None:
+        self.assertEqual(_library._inner.obj_3.__assigned_name__, "obj_3")
+        self.assertEqual(_library._inner.obj_3.__type__, complex)
+
+    def test_assigned_name_in_a_method_of_the_child_class(self) -> None:
+        """ Test the stored name in a method of a class that inherit from
+        `name.AutoName`.
+        """
+        expected = repr((_library._inner.e, _library._inner.f,
+                         _library._inner.g))
+        self.assertEqual(expected, "(e, f, g)")
+
+    def test_assigned_name_in_a_namespace(self) -> None:
+        self.assertEqual(_library._inner.Namespace.attr.__assigned_name__,
+                         "attr")
 
 
 if __name__ == '__main__':

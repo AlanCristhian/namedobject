@@ -11,16 +11,18 @@ from __future__ import annotations
 import inspect
 
 from types import FrameType, ModuleType
-from typing import Generator, Iterator, Dict, Any, Optional
+from typing import Generator, Iterator, Dict, Any, Optional, List, Set
 
 
 __all__ = ["AutoName"]
-__version__ = "0.0.5"
+__version__ = "0.0.6"
+
+
+_FrameGenerator = Generator[Dict[str, Any], None, None]
 
 
 # Yields all locals variables in the higher (calling) frames
-_FrameGenerator = Generator[Dict[str, Any], None, None]
-def _get_outer_locals(frame: FrameType) -> _FrameGenerator:
+def _get_outer_locals(frame: FrameType = None) -> _FrameGenerator:
     while frame:
         yield frame.f_locals
         frame = frame.f_back
@@ -37,8 +39,6 @@ class AutoName:
 
     """
     def __init__(self, count: int = 0) -> None:
-        assert isinstance(count, int), \
-               "Expected 'int' object, got '%s'" % count.__class__.__name__
         assert count >= 0, "Expected positive 'int' number, got '%r'" % count
         self.__count = count
         self.__name: Optional[str] = None
@@ -46,40 +46,65 @@ class AutoName:
     # I define the '__iter__' method to give compatibility
     # with the unpack sequence assignment syntax.
     def __iter__(self) -> Iterator[AutoName]:
+
         # NOTE: I call 'type(self)' to warranty that this
         # method works even in a subclass of this.
         return (type(self)() for _ in range(self.__count))
 
-    # Find the assigned name of the current object.
-    def _find_name(self, frame: FrameType) -> str:
+    # Search the assigned name of the current object.
+    def _search_name(self, frame: FrameType = None) -> str:
         scope = _get_outer_locals(frame)
+
         # NOTE: The same object could have many names in differents scopes.
         # So, I stores all names in the 'scopes' var. The valid name is one
         # that is in the last scope.
         scopes = []
         for variables in scope:
+
             # NOTE: An object could have various names in the same scope. So,
             # I stores all in the 'names' var. This situation happen when user
             # assign the object to multiples variables with the "multiple
             # assignment syntax".
-            names = []
+            names: List[str] = []
+            seen: Set[str] = set()
+
             for name, value in variables.items():
-                if isinstance(value, ModuleType):
-                    names.extend(attr for attr in dir(value)
-                                 if getattr(value, attr) is self)
-                elif value is self:
-                    names.append(name)
+                self._search_recursively(value, names, name, seen)
             if names:
                 scopes.append(names)
         if scopes:
+
             # Remember: the valid name is one that is in the last scope.
             names = scopes[-1]
             if len(names) > 1:  # Check for multiple assignment.
                 raise NameError(
-                    "Can not assign a unique name to multiple variables.")
+                    "Can not assign multiples names to the same object.")
             else:
                 return names[0]
         raise NameError("Can not find the name of this object.")
+
+    def _search_recursively(self, value, names, name, seen):
+
+        # search the name in the frame
+        if value is self:
+            names.append(name)
+
+        # Search the name in a namespace
+        elif isinstance(value, type):
+            for attr in dir(value):
+                if attr != "__abstractmethods__":
+                    if getattr(value, attr) is self:
+                        names.append(attr)
+
+        # Search the name in a module
+        elif isinstance(value, ModuleType):
+            if value in seen:
+                return
+            else:
+                seen.add(value)
+                m_locals = ((key, getattr(value, key)) for key in dir(value))
+                for name_i, value_i in m_locals:
+                    self._search_recursively(value_i, names, name_i, seen)
 
     @property
     def __assigned_name__(self) -> str:
@@ -89,5 +114,5 @@ class AutoName:
             if frame is None:
                 raise NameError("Can not find the name of this object.")
             else:
-                self.__name = self._find_name(frame.f_back)
+                self.__name = self._search_name(frame.f_back)
         return self.__name
