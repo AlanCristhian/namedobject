@@ -9,9 +9,11 @@
 from __future__ import annotations
 
 from types import FrameType, ModuleType
-from typing import (Generator, Iterator, Dict, Any, Optional, List, Set,
-                    Optional)
+from typing import Generator, Iterator, Dict, Any, Optional, List, Set
 import inspect
+from pathlib import Path
+
+import name as namemodule
 
 
 __all__ = ["AutoName"]
@@ -22,6 +24,7 @@ _FrameGenerator = Generator[Dict[str, Any], None, None]
 
 
 _NOT_FOUND_EXCEPTION = NameError("Can not be found the name of this object.")
+_DEFAULT_MODULES_PATH = str(Path(inspect.__file__).parent)
 
 
 # Yields all locals variables in the higher (calling) frames
@@ -72,6 +75,9 @@ class AutoName:
         # So, I stores all names in the 'scopes' var. The valid name is one
         # that is in the last scope.
         scopes = []
+        m_seen: Set[ModuleType] = {namemodule}  # modules seen
+        t_seen: Set[type] = {AutoName}  # types seen
+
         for variables in _get_outer_locals(frame):
 
             # NOTE: An object could have various names in the same scope. So,
@@ -79,8 +85,6 @@ class AutoName:
             # assign the object to multiples variables with the "multiple
             # assignment syntax".
             names: List[str] = []
-            m_seen: Set[ModuleType] = set()  # modules seen
-            t_seen: Set[type] = set()  # types seen
 
             for name, value in variables.items():
                 self._search_recursively(value, names, name, m_seen, t_seen)
@@ -121,12 +125,15 @@ class AutoName:
 
         # Search the name in a module
         elif isinstance(value, ModuleType):
-            if value in m_seen:
-                return
-            m_seen.add(value)
-            for key in dir(value):
-                self._search_recursively(
-                    getattr(value, key), names, key, m_seen, t_seen)
+            if hasattr(value, "__file__"):
+                if value.__file__ and _DEFAULT_MODULES_PATH in value.__file__:
+                    return
+                if value in m_seen:
+                    return
+                m_seen.add(value)
+                for key in dir(value):
+                    self._search_recursively(
+                        getattr(value, key), names, key, m_seen, t_seen)
 
     @property
     def __assigned_name__(self) -> str:
