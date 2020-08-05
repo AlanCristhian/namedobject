@@ -17,7 +17,7 @@ import name as namemodule
 
 
 __all__ = ["AutoName"]
-__version__ = "0.0.8"
+__version__ = "0.0.9"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -126,10 +126,11 @@ class AutoName:
         # Search the name in a module
         elif isinstance(value, ModuleType):
             if hasattr(value, "__file__"):
-                if value.__file__ and _DEFAULT_MODULES_PATH in value.__file__:
-                    return
-                if value in m_seen:
-                    return
+                if value.__file__:
+                    if _DEFAULT_MODULES_PATH in value.__file__:
+                        return
+                    if value in m_seen:
+                        return
                 m_seen.add(value)
                 for key in dir(value):
                     self._search_recursively(
