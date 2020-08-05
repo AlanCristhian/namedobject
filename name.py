@@ -134,6 +134,8 @@ class AutoName:
                 for key in dir(value):
                     self._search_recursively(
                         getattr(value, key), names, key, m_seen, t_seen)
+                    if len(names) > 1:
+                        return
 
     @property
     def __assigned_name__(self) -> str:
