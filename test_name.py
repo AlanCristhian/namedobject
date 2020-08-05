@@ -86,6 +86,17 @@ class AutoNameSuite(unittest.TestCase):
         n = Number()
         self.assertEqual(n.name, "n")
 
+    def test_NameError_in_multiple_assignment_in_namespace(self) -> None:
+        description = r"Can not assign multiples names to the same object."
+        with self.assertRaisesRegex(NameError, description):
+            class Multiple_1:
+                attr_1 = attr_2 = name.AutoName()
+            Multiple_1.attr_1.__assigned_name__
+        with self.assertRaisesRegex(NameError, description):
+            class Multiple_2:
+                attr_1 = attr_2 = name.AutoName()
+            Multiple_2.attr_2.__assigned_name__
+
 
 class ModuleSuite(unittest.TestCase):
     def test_single_assignment_in_module(self) -> None:

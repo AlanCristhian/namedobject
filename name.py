@@ -17,7 +17,7 @@ import name as namemodule
 
 
 __all__ = ["AutoName"]
-__version__ = "0.0.9"
+__version__ = "0.1.0"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -64,14 +64,14 @@ class AutoName:
     # with the unpack sequence assignment syntax.
     def __iter__(self) -> Iterator[AutoName]:
 
-        # NOTE: I call 'type(self)' to warranty that this
+        # NOTE 1: I call 'type(self)' to warranty that it
         # method works even in a subclass of this.
         return (type(self)() for _ in range(self.__count))
 
     # Search the assigned name of the current object.
     def _search_name(self, frame: Optional[FrameType]) -> str:
 
-        # NOTE: The same object could have many names in differents scopes.
+        # NOTE 2: The same object could have many names in differents scopes.
         # So, I stores all names in the 'scopes' var. The valid name is one
         # that is in the last scope.
         scopes = []
@@ -80,14 +80,33 @@ class AutoName:
 
         for variables in _get_outer_locals(frame):
 
-            # NOTE: An object could have various names in the same scope. So,
+            # NOTE 3: An object could have various names in the same scope. So,
             # I stores all in the 'names' var. This situation happen when user
             # assign the object to multiples variables with the "multiple
             # assignment syntax".
             names: List[str] = []
+            variables_items = iter(variables.items())
+            for name, value in variables_items:
+                len_names = self._search_recursively(
+                    value, names, name, m_seen, t_seen)
 
-            for name, value in variables.items():
-                self._search_recursively(value, names, name, m_seen, t_seen)
+                # NOTE 4: since python 3.6, dictionaries remember the order of
+                # items inserted. And since 3.7 that behaviour are a intended
+                # feature. Because that, when the user make a multiple
+                # assignment, python stores each name close to each other. So,
+                # to know if the user has made a multiple assignment is
+                # enought to check if the next name is the object, then stop.
+                if len_names:
+                    try:
+                        name, value = next(variables_items)
+                    except StopIteration:
+                        pass
+                    else:
+                        self._search_recursively(
+                            value, names, name, m_seen, t_seen)
+                    finally:
+                        break
+
             if names:
                 scopes.append(names)
         if scopes:
@@ -108,35 +127,45 @@ class AutoName:
         name: str,
         m_seen: Set[ModuleType],
         t_seen: Set[type],
-    ) -> None:
+    ) -> int:
         # search the name in the frame
         if value is self:
             names.append(name)
 
         # Search the name in a namespace
         elif isinstance(value, type):
-            if value in t_seen:
-                return
-            t_seen.add(value)
-            for attr in dir(value):
-                if getattr(value, attr, None) is self:
-                    names.append(attr)
-                    return
+            if value not in t_seen:
+                t_seen.add(value)
+                dir_value = iter(dir(value))
+                for attr in dir_value:
+                    if getattr(value, attr, None) is self:
+                        names.append(attr)
+                        break
+
+                # See NOTE 4
+                try:
+                    attr = next(dir_value)
+                except StopIteration:
+                    pass
+                else:
+                    if getattr(value, attr, None) is self:
+                        names.append(attr)
 
         # Search the name in a module
         elif isinstance(value, ModuleType):
             if hasattr(value, "__file__"):
                 if value.__file__:
-                    if _DEFAULT_MODULES_PATH in value.__file__:
-                        return
-                    if value in m_seen:
-                        return
+                    if _DEFAULT_MODULES_PATH in value.__file__ \
+                    or value in m_seen:  # noqa
+                        return len(names)
+
                 m_seen.add(value)
                 for key in dir(value):
-                    self._search_recursively(
+                    len_names = self._search_recursively(
                         getattr(value, key), names, key, m_seen, t_seen)
-                    if len(names) > 1:
-                        return
+                    if len_names > 1:
+                        break
+        return len(names)
 
     @property
     def __assigned_name__(self) -> str:
