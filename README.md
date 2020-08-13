@@ -2,7 +2,7 @@
 
 A library with a base class that stores the assigned name of an object.
 
-```python
+```pycon
 >>> import name
 >>> a = name.AutoName()
 >>> a.__assigned_name__
@@ -20,7 +20,7 @@ $ pip install git+https://github.com/AlanCristhian/name.git
 This module only have one class: ``AutoName``. This creates an object with the
 `__assigned_name__` attribute that stores the name. E.g:
 
-```python
+```pycon
 >>> import name
 >>> a = name.AutoName()
 >>> a.__assigned_name__
@@ -30,7 +30,7 @@ This module only have one class: ``AutoName``. This creates an object with the
 You can create multiples variables using the unpack sequence syntax. To do that
 you must pass the amount of object that you want as argument.
 
-```python
+```pycon
 >>> import name
 >>> a, b, c = name.AutoName(3)
 >>> a.__assigned_name__
@@ -44,7 +44,7 @@ you must pass the amount of object that you want as argument.
 To make your own subclass that inherit from `name.AutoName`, you must chall
 the `__init__` method.
 
-```python
+```pycon
 >>> import name
 >>> class Number(name.AutoName):
 ...     def __init__(self, value, count=0):
@@ -60,7 +60,7 @@ the `__init__` method.
 
 Also, multiple inheritance is allowed.
 
-```python
+```pycon
 >>> import name
 ... class Numeric:
 ...     def __init__(self, type):
@@ -87,7 +87,7 @@ base clases.
 
 They wont work with multiple assignment. E.g:
 
-```python
+```pycon
 >>> import name
 >>> a = b = name.AutoName()
 >>> a.__assigned_name__
@@ -112,7 +112,7 @@ attribute.
 If you make a subclass of `AutoName`, you can not access to the
 `__assigned_name__` property from the `__init__` method.
 
-```python
+```pycon
 >>> import name
 >>> class Number(name.AutoName):
 ...     def __init__(self, count=0):
@@ -131,7 +131,7 @@ method. They can find the name of the object after the object was created.
 
 **To solve that** make a *getter* method:
 
-```python
+```pycon
 >>> import name
 >>> class Number(name.AutoName):
 ...     def __init__(self, count=0):
