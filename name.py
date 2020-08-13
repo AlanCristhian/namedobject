@@ -17,7 +17,7 @@ import name as namemodule
 
 
 __all__ = ["AutoName"]
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -102,8 +102,8 @@ class AutoName:
                     except StopIteration:
                         pass
                     else:
-                        self._search_recursively(
-                            value, names, name, m_seen, t_seen)
+                        if value is self:
+                            names.append(name)
                     finally:
                         break
 
