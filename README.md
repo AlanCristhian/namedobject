@@ -107,7 +107,7 @@ NotImplementedError: Can not assign multiples names to the same object.
 Note that the error is raised only wen you get the `__assigned_name__`
 attribute.
 
-### __assigned_name__ in the body of __init__
+### Custom attribute name to store the object name
 
 If you make a subclass of `AutoName`, you can not access to the
 `__assigned_name__` property from the `__init__` method.
@@ -134,8 +134,6 @@ method. They can find the name of the object after the object was created.
 ```pycon
 >>> import name
 >>> class Number(name.AutoName):
-...     def __init__(self, count=0):
-...         super().__init__(count)
 ...     @property
 ...     def name(self):
 ...         return self.__assigned_name__

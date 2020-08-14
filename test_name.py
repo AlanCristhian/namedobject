@@ -77,9 +77,6 @@ class AutoNameSuite(unittest.TestCase):
 
     def test___assigned_name___in___init___method(self):
         class Number(name.AutoName):
-            def __init__(self, count=0):
-                super().__init__(count)
-
             @property
             def name(self):
                 return self.__assigned_name__
