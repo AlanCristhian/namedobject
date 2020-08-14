@@ -11,20 +11,19 @@ from __future__ import annotations
 from types import FrameType, ModuleType
 from typing import Generator, Iterator, Dict, Any, Optional, List, Set
 import inspect
-from pathlib import Path
 
 import name as namemodule
 
 
 __all__ = ["AutoName"]
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
 
 
 _NOT_FOUND_EXCEPTION = NameError("Can not be found the name of this object.")
-_DEFAULT_MODULES_PATH = str(Path(inspect.__file__).parent)
+_modules_with_autoname_instances = set()
 
 
 # Yields all locals variables in the higher (calling) frames
@@ -59,6 +58,8 @@ class AutoName:
         assert count >= 0, "Expected positive 'int' number, got '%r'" % count
         self.__count = count
         self.__name: Optional[str] = None
+        _modules_with_autoname_instances.add(
+            inspect.currentframe().f_back.f_globals["__file__"])  # type:ignore
 
     # I define the '__iter__' method to give compatibility
     # with the unpack sequence assignment syntax.
@@ -155,7 +156,7 @@ class AutoName:
         elif isinstance(value, ModuleType):
             if hasattr(value, "__file__"):
                 if value.__file__:
-                    if _DEFAULT_MODULES_PATH in value.__file__ \
+                    if value.__file__ not in _modules_with_autoname_instances \
                     or value in m_seen:  # noqa
                         return len(names)
 
