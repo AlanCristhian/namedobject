@@ -10,11 +10,11 @@ from __future__ import annotations
 
 from types import FrameType, ModuleType
 from typing import Generator, Iterator, Dict, Any, Optional, List, Set
-import inspect
+import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -61,7 +61,7 @@ class AutoName:
         assert count >= 0, "Expected positive 'int' number, got '%r'" % count
         self.__count = count
         self.__name: Optional[str] = None
-        self._module = _get_module_path(inspect.currentframe().f_back)
+        self._module = _get_module_path(sys._getframe(0).f_back)
 
     # I define the '__iter__' method to give compatibility
     # with the unpack sequence assignment syntax.
@@ -137,29 +137,29 @@ class AutoName:
         elif isinstance(value, type):
             if value not in t_seen:
                 t_seen.add(value)
-                dir_value = iter(dir(value))
-                for attr in dir_value:
-                    if getattr(value, attr, None) is self:
-                        names.append(attr)
+                key_val = iter(vars(value).items())
+                for key, val in key_val:
+                    if val is self:
+                        names.append(key)
                         break
 
                 # See NOTE 4
                 try:
-                    attr = next(dir_value)
+                    key, val = next(key_val)
                 except StopIteration:
                     pass
                 else:
-                    if getattr(value, attr, None) is self:
-                        names.append(attr)
+                    if val is self:
+                        names.append(key)
 
         # Search the name in a module
         elif isinstance(value, ModuleType):
             if hasattr(value, "__file__"):
                 if value.__file__ not in {None, self._module}:
                     return len(names)
-                for key in dir(value):
+                for key, val in vars(value).items():
                     len_names = self._search_recursively(
-                        getattr(value, key), names, key, t_seen)
+                        val, names, key, t_seen)
                     if len_names > 1:
                         break
         return len(names)
@@ -168,9 +168,9 @@ class AutoName:
     def __assigned_name__(self) -> str:
         """Search the name of the instance of the current class."""
         if self.__name is None:
-            frame: Optional[FrameType] = inspect.currentframe()
+            frame: Optional[FrameType] = sys._getframe(0).f_back
             if frame is None:
                 raise _NOT_FOUND_EXCEPTION
             else:
-                self.__name = self._search_name(frame.f_back)
+                self.__name = self._search_name(frame)
         return self.__name
