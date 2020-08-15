@@ -12,8 +12,6 @@ from types import FrameType, ModuleType
 from typing import Generator, Iterator, Dict, Any, Optional, List, Set
 import inspect
 
-import name as namemodule
-
 
 __all__ = ["AutoName"]
 __version__ = "0.1.2"
@@ -23,7 +21,6 @@ _FrameGenerator = Generator[Dict[str, Any], None, None]
 
 
 _NOT_FOUND_EXCEPTION = NameError("Can not be found the name of this object.")
-_modules_with_autoname_instances = set()
 
 
 # Yields all locals variables in the higher (calling) frames
@@ -31,6 +28,12 @@ def _get_outer_locals(frame: Optional[FrameType]) -> _FrameGenerator:
     while frame:
         yield frame.f_locals
         frame = frame.f_back
+
+
+def _get_module_path(frame: Optional[FrameType]) -> str:
+    while frame.f_locals is not frame.f_globals:
+        frame = frame.f_back
+    return frame.f_locals["__file__"]
 
 
 class AutoName:
@@ -58,8 +61,7 @@ class AutoName:
         assert count >= 0, "Expected positive 'int' number, got '%r'" % count
         self.__count = count
         self.__name: Optional[str] = None
-        _modules_with_autoname_instances.add(
-            inspect.currentframe().f_back.f_globals["__file__"])  # type:ignore
+        self._module = _get_module_path(inspect.currentframe().f_back)
 
     # I define the '__iter__' method to give compatibility
     # with the unpack sequence assignment syntax.
@@ -76,7 +78,6 @@ class AutoName:
         # So, I stores all names in the 'scopes' var. The valid name is one
         # that is in the last scope.
         scopes = []
-        m_seen: Set[ModuleType] = {namemodule}  # modules seen
         t_seen: Set[type] = {AutoName}  # types seen
 
         for variables in _get_outer_locals(frame):
@@ -89,7 +90,7 @@ class AutoName:
             variables_items = iter(variables.items())
             for name, value in variables_items:
                 len_names = self._search_recursively(
-                    value, names, name, m_seen, t_seen)
+                    value, names, name, t_seen)
 
                 # NOTE 4: since python 3.6, dictionaries remember the order of
                 # items inserted. And since 3.7 that behaviour are a intended
@@ -126,7 +127,6 @@ class AutoName:
         value: Any,
         names: List[str],
         name: str,
-        m_seen: Set[ModuleType],
         t_seen: Set[type],
     ) -> int:
         # search the name in the frame
@@ -155,15 +155,11 @@ class AutoName:
         # Search the name in a module
         elif isinstance(value, ModuleType):
             if hasattr(value, "__file__"):
-                if value.__file__:
-                    if value.__file__ not in _modules_with_autoname_instances \
-                    or value in m_seen:  # noqa
-                        return len(names)
-
-                m_seen.add(value)
+                if value.__file__ not in {None, self._module}:
+                    return len(names)
                 for key in dir(value):
                     len_names = self._search_recursively(
-                        getattr(value, key), names, key, m_seen, t_seen)
+                        getattr(value, key), names, key, t_seen)
                     if len_names > 1:
                         break
         return len(names)
