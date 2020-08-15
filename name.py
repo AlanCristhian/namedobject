@@ -30,7 +30,8 @@ def _get_outer_locals(frame: Optional[FrameType]) -> _FrameGenerator:
         frame = frame.f_back
 
 
-def _get_module_path(frame: Optional[FrameType]) -> str:
+def _get_module_path() -> str:
+    frame = sys._getframe(2)
     while frame.f_locals is not frame.f_globals:
         frame = frame.f_back
     return frame.f_locals["__file__"]
@@ -61,7 +62,7 @@ class AutoName:
         assert count >= 0, "Expected positive 'int' number, got '%r'" % count
         self.__count = count
         self.__name: Optional[str] = None
-        self._module = _get_module_path(sys._getframe(0).f_back)
+        self._module = _get_module_path()
 
     # I define the '__iter__' method to give compatibility
     # with the unpack sequence assignment syntax.
@@ -168,7 +169,7 @@ class AutoName:
     def __assigned_name__(self) -> str:
         """Search the name of the instance of the current class."""
         if self.__name is None:
-            frame: Optional[FrameType] = sys._getframe(0).f_back
+            frame: Optional[FrameType] = sys._getframe(1)
             if frame is None:
                 raise _NOT_FOUND_EXCEPTION
             else:
