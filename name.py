@@ -2,7 +2,7 @@
 
 >>> import name
 >>> a = name.AutoName()
->>> a.__assigned_name__
+>>> a.__name__
 'a'
 """
 
@@ -14,7 +14,7 @@ import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.1.3"
+__version__ = "0.2.0"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -42,7 +42,7 @@ class AutoName:
 
     >>> import name
     >>> a = name.AutoName()
-    >>> a.__assigned_name__
+    >>> a.__name__
     'a'
 
     It can also creates multiples variables using the unpack sequence syntax.
@@ -50,18 +50,18 @@ class AutoName:
 
     >>> import name
     >>> a, b, c = name.AutoName(3)
-    >>> a.__assigned_name__
+    >>> a.__name__
     'a'
-    >>> b.__assigned_name__
+    >>> b.__name__
     'b'
-    >>> c.__assigned_name__
+    >>> c.__name__
     'c'
 
     """
     def __init__(self, count: int = 0):
         assert count >= 0, "Expected positive 'int' number, got '%r'" % count
-        self.__count = count
-        self.__name: Optional[str] = None
+        self._count = count
+        self._name: Optional[str] = None
         self._module = _get_module_path()
 
     # I define the '__iter__' method to give compatibility
@@ -70,7 +70,7 @@ class AutoName:
 
         # NOTE 1: I call 'type(self)' to warranty that it
         # method works even in a subclass of this.
-        return (type(self)() for _ in range(self.__count))
+        return (type(self)() for _ in range(self._count))
 
     # Search the assigned name of the current object.
     def _search_name(self, frame: Optional[FrameType]) -> str:
@@ -166,12 +166,12 @@ class AutoName:
         return len(names)
 
     @property
-    def __assigned_name__(self) -> str:
+    def __name__(self) -> str:
         """Search the name of the instance of the current class."""
-        if self.__name is None:
+        if self._name is None:
             frame: Optional[FrameType] = sys._getframe(1)
             if frame is None:
                 raise _NOT_FOUND_EXCEPTION
             else:
-                self.__name = self._search_name(frame)
-        return self.__name
+                self._name = self._search_name(frame)
+        return self._name

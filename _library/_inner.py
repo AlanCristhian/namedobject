@@ -44,7 +44,7 @@ class Atom(name.AutoName):
         super().__init__(count)
 
     def __repr__(self) -> str:
-        return self.__assigned_name__
+        return self.__name__
 
 
 e, f, g = Atom(3)

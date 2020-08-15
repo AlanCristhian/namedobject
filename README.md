@@ -5,7 +5,7 @@ A library with a base class that stores the assigned name of an object.
 ```pycon
 >>> import name
 >>> a = name.AutoName()
->>> a.__assigned_name__
+>>> a.__name__
 'a'
 ```
 
@@ -18,12 +18,12 @@ $ pip install git+https://github.com/AlanCristhian/name.git
 ## Tutorial
 
 This module only have one class: ``AutoName``. This creates an object with the
-`__assigned_name__` attribute that stores the name. E.g:
+`__name__` attribute that stores the name. E.g:
 
 ```pycon
 >>> import name
 >>> a = name.AutoName()
->>> a.__assigned_name__
+>>> a.__name__
 'a'
 ```
 
@@ -33,11 +33,11 @@ you must pass the amount of object that you want as argument.
 ```pycon
 >>> import name
 >>> a, b, c = name.AutoName(3)
->>> a.__assigned_name__
+>>> a.__name__
 'a'
->>> b.__assigned_name__
+>>> b.__name__
 'b'
->>> c.__assigned_name__
+>>> c.__name__
 'c'
 ```
 
@@ -52,7 +52,7 @@ the `__init__` method.
 ...         self.value = value
 ...
 >>> a = Number(1)
->>> a.__assigned_name__
+>>> a.__name__
 "a"
 >>> a.value
 1
@@ -72,7 +72,7 @@ Also, multiple inheritance is allowed.
 ...         name.AutoName.__init__(self, count)
 ...
 >>> c = Symbol(complex)
->>> c.__assigned_name__
+>>> c.__name__
 'c'
 >>> c.type
 <class 'complex'>
@@ -90,43 +90,43 @@ They wont work with multiple assignment. E.g:
 ```pycon
 >>> import name
 >>> a = b = name.AutoName()
->>> a.__assigned_name__
+>>> a.__name__
 Traceback (most recent call last):
   File "<pyshell#2>", line 1, in <module>
-    a.__assigned_name__
+    a.__name__
     ...
 NotImplementedError: Can not assign multiples names to the same object.
->>> b.__assigned_name__
+>>> b.__name__
 Traceback (most recent call last):
   File "<pyshell#2>", line 1, in <module>
-    a.__assigned_name__
+    a.__name__
     ...
 NotImplementedError: Can not assign multiples names to the same object.
 ```
 
-Note that the error is raised only wen you get the `__assigned_name__`
+Note that the error is raised only wen you get the `__name__`
 attribute.
 
 ### Custom attribute name to store the object name
 
 If you make a subclass of `AutoName`, you can not access to the
-`__assigned_name__` property from the `__init__` method.
+`__name__` property from the `__init__` method.
 
 ```pycon
 >>> import name
 >>> class Number(name.AutoName):
 ...     def __init__(self, count=0):
 ...         super().__init__(count)
-...         self.name = self.__assigned_name__
+...         self.name = self.__name__
 ...
 >>> n = Number()
 >>> n.name
 'self'
->>> n.__assigned_name__
+>>> n.__name__
 'self'
 ```
 
-As you can see, the response is wrong. That is because `__assigned_name__` is a
+As you can see, the response is wrong. That is because `__name__` is a
 method. They can find the name of the object after the object was created.
 
 **To solve that** make a *getter* method:
@@ -136,7 +136,7 @@ method. They can find the name of the object after the object was created.
 >>> class Number(name.AutoName):
 ...     @property
 ...     def name(self):
-...         return self.__assigned_name__
+...         return self.__name__
 ...
 >>> n = Number()
 >>> n.name
