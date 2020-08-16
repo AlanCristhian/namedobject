@@ -9,12 +9,12 @@
 from __future__ import annotations
 
 from types import FrameType, ModuleType
-from typing import Generator, Iterator, Dict, Any, Optional, List, Set
+from typing import Generator, Iterator, Dict, Any, Optional, List, Set, Union
 import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -30,10 +30,10 @@ def _get_outer_locals(frame: Optional[FrameType]) -> _FrameGenerator:
         frame = frame.f_back
 
 
-def _get_module_path() -> str:
+def _get_module_path() -> Union[str, None]:
     frame = sys._getframe(2)
     while frame.f_locals is not frame.f_globals:
-        frame = frame.f_back
+        frame = frame.f_back  # type: ignore
     return frame.f_locals.get("__file__")
 
 

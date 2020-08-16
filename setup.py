@@ -2,10 +2,13 @@ from setuptools import setup
 
 setup(
     name="name",
-    version="0.2.0",
-    py_modules=["name"],
+    version="0.2.1",
+    packages=["name"],
+    package_data={
+        "name": ["name.py", "py.typed"],
+    },
 
-    zip_safe=True,
+    zip_safe=False,
     author="Alan Cristhian",
     author_email="alan.cristh@gmail.com",
     description="A library with a base class that "
