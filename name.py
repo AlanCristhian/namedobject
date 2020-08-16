@@ -34,7 +34,7 @@ def _get_module_path() -> str:
     frame = sys._getframe(2)
     while frame.f_locals is not frame.f_globals:
         frame = frame.f_back
-    return frame.f_locals["__file__"]
+    return frame.f_locals.get("__file__")
 
 
 class AutoName:
