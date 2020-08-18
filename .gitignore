@@ -57,3 +57,4 @@ target/
 
 # custom
 *.diff
+*.sublime-workspace
