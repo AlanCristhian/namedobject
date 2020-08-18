@@ -9,12 +9,12 @@
 from __future__ import annotations
 
 from types import FrameType, ModuleType
-from typing import Generator, Iterator, Dict, Any, Optional, List, Set, Union
+from typing import Generator, Iterator, Dict, Any, Optional, List, Union
 import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -30,6 +30,7 @@ def _get_outer_locals(frame: Optional[FrameType]) -> _FrameGenerator:
         frame = frame.f_back
 
 
+# Get the path of the module where the AutoName instance has been defined
 def _get_module_path() -> Union[str, None]:
     frame = sys._getframe(2)
     while frame.f_locals is not frame.f_globals:
@@ -79,7 +80,6 @@ class AutoName:
         # So, I stores all names in the 'scopes' var. The valid name is one
         # that is in the last scope.
         scopes = []
-        t_seen: Set[type] = {AutoName}  # types seen
 
         for variables in _get_outer_locals(frame):
 
@@ -90,8 +90,7 @@ class AutoName:
             names: List[str] = []
             variables_items = iter(variables.items())
             for name, value in variables_items:
-                len_names = self._search_recursively(
-                    value, names, name, t_seen)
+                len_names = self._search_recursively(value, names, name)
 
                 # NOTE 4: since python 3.6, dictionaries remember the order of
                 # items inserted. And since 3.7 that behaviour are a intended
@@ -128,30 +127,28 @@ class AutoName:
         value: Any,
         names: List[str],
         name: str,
-        t_seen: Set[type],
     ) -> int:
+
         # search the name in the frame
         if value is self:
             names.append(name)
 
         # Search the name in a namespace
         elif isinstance(value, type):
-            if value not in t_seen:
-                t_seen.add(value)
-                key_val = iter(vars(value).items())
-                for key, val in key_val:
-                    if val is self:
-                        names.append(key)
-                        break
+            key_val = iter(vars(value).items())
+            for key, val in key_val:
+                if val is self:
+                    names.append(key)
+                    break
 
-                # See NOTE 4
-                try:
-                    key, val = next(key_val)
-                except StopIteration:
-                    pass
-                else:
-                    if val is self:
-                        names.append(key)
+            # See NOTE 4
+            try:
+                key, val = next(key_val)
+            except StopIteration:
+                pass
+            else:
+                if val is self:
+                    names.append(key)
 
         # Search the name in a module
         elif isinstance(value, ModuleType):
@@ -159,8 +156,7 @@ class AutoName:
                 if value.__file__ not in {None, self._module}:
                     return len(names)
                 for key, val in vars(value).items():
-                    len_names = self._search_recursively(
-                        val, names, key, t_seen)
+                    len_names = self._search_recursively(val, names, key)
                     if len_names > 1:
                         break
         return len(names)
