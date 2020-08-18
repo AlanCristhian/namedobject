@@ -2,10 +2,10 @@ from setuptools import setup
 
 setup(
     name="name",
-    version="0.2.1",
+    version="0.2.2",
     packages=["name"],
     package_data={
-        "name": ["name.py", "py.typed"],
+        "name": ["__init__.py", "py.typed"],
     },
 
     zip_safe=False,
