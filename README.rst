@@ -92,13 +92,13 @@ They wont work with multiple assignment. E.g: ::
     File "<pyshell#2>", line 1, in <module>
       a.__name__
       ...
-  NotImplementedError: Can not assign multiples names to the same object.
+  NotImplementedError: Cannot assign multiples names to the same object.
   >>> b.__name__
   Traceback (most recent call last):
     File "<pyshell#2>", line 1, in <module>
       a.__name__
       ...
-  NotImplementedError: Can not assign multiples names to the same object.
+  NotImplementedError: Cannot assign multiples names to the same object.
 
 Note that the error is raised only wen you get the `__name__`
 attribute.
@@ -135,3 +135,31 @@ method. They can find the name of the object after the object was created.
   >>> n = Number()
   >>> n.name
   'n'
+
+AutoName instance as attribute of an object
+===========================================
+
+You can't create an instance of `AutoName` and store it in an object
+attibute: ::
+
+  >>> import name
+  >>> class Object:
+  ...     def __init__(self):
+  ...         self.attribute = name.AutoName()
+  ...
+  >>> Object().attribute.__name__
+  Traceback (most recent call last):
+    File "<pyshell#2>", line 1, in <module>
+    ...
+  NameError: The name of this object has not been found.
+
+**To do that** the attribute should be an *class attribute*: ::
+
+  >>> import name
+  >>> class Object:
+  ...     attribute = name.AutoName()
+  ...     def __init__(self):
+  ...         ...
+  ...
+  >>> Object().attribute.__name__
+  'attribute'
