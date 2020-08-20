@@ -14,7 +14,7 @@ import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -133,23 +133,6 @@ class AutoName:
         if value is self:
             names.append(name)
 
-        # Search the name in a namespace
-        elif isinstance(value, type):
-            key_val = iter(vars(value).items())
-            for key, val in key_val:
-                if val is self:
-                    names.append(key)
-                    break
-
-            # See NOTE 4
-            try:
-                key, val = next(key_val)
-            except StopIteration:
-                pass
-            else:
-                if val is self:
-                    names.append(key)
-
         # Search the name in a module
         elif isinstance(value, ModuleType):
             if hasattr(value, "__file__"):
@@ -171,3 +154,12 @@ class AutoName:
             else:
                 self._name = self._search_name(frame)
         return self._name
+
+    def __get__(self, instance, owner):
+        if self._name is None:
+            names = [key for key, val in vars(owner).items() if val is self]
+            if len(names) > 1:
+                raise NameError(
+                    "Can not assign multiples names to the same object.")
+            self._name = names[0]
+        return self

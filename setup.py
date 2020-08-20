@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="name",
-    version="0.2.2",
+    version="0.2.3",
     packages=["name"],
     package_data={
         "name": ["__init__.py", "py.typed"],
