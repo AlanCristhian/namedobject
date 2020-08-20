@@ -17,7 +17,7 @@ class AutoNameSuite(unittest.TestCase):
         self.assertEqual(obj.__name__, "obj")
 
     def test_NameError_in_multiple_assignment(self) -> None:
-        description = r"Can not assign multiples names to the same object."
+        description = r"Cannot assign multiples names to the same object."
         with self.assertRaisesRegex(NameError, description):
             a = b = name.AutoName()
             a.__name__
@@ -84,7 +84,7 @@ class AutoNameSuite(unittest.TestCase):
         self.assertEqual(n.name, "n")
 
     def test_NameError_in_multiple_assignment_in_namespace(self) -> None:
-        description = r"Can not assign multiples names to the same object."
+        description = r"Cannot assign multiples names to the same object."
         with self.assertRaisesRegex(NameError, description):
             class Multiple_1:
                 attr_1 = attr_2 = name.AutoName()
@@ -100,7 +100,7 @@ class ModuleSuite(unittest.TestCase):
         self.assertEqual(_module.obj_1.__name__, "obj_1")
 
     def test_NameError_in_multiple_assignment_in_module(self) -> None:
-        description = r"Can not assign multiples names to the same object."
+        description = r"Cannot assign multiples names to the same object."
         with self.assertRaisesRegex(NameError, description):
             _module.a.__name__
         with self.assertRaisesRegex(NameError, description):
@@ -133,7 +133,7 @@ class LibrarySuite(unittest.TestCase):
         self.assertEqual(_library._inner.obj_1.__name__, "obj_1")
 
     def test_NameError_in_multiple_assignment_in_module(self) -> None:
-        description = r"Can not assign multiples names to the same object."
+        description = r"Cannot assign multiples names to the same object."
         with self.assertRaisesRegex(NameError, description):
             _library._inner.a.__name__
         with self.assertRaisesRegex(NameError, description):

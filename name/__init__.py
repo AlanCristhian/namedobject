@@ -20,7 +20,9 @@ __version__ = "0.2.3"
 _FrameGenerator = Generator[Dict[str, Any], None, None]
 
 
-_NOT_FOUND_EXCEPTION = NameError("Can not be found the name of this object.")
+_NOT_FOUND_ERROR = NameError("The name of this object has not been found.")
+_MULTIPLE_NAMES_ERROR = NameError(
+    "Cannot assign multiples names to the same object.")
 
 
 # Yields all locals variables in the higher (calling) frames
@@ -116,11 +118,10 @@ class AutoName:
             # Remember: the valid name is one that is in the last scope.
             names = scopes[-1]
             if len(names) > 1:  # Check for multiple assignment.
-                raise NameError(
-                    "Can not assign multiples names to the same object.")
+                raise _MULTIPLE_NAMES_ERROR
             else:
                 return names[0]
-        raise _NOT_FOUND_EXCEPTION
+        raise _NOT_FOUND_ERROR
 
     def _search_recursively(
         self,
@@ -150,7 +151,7 @@ class AutoName:
         if self._name is None:
             frame: Optional[FrameType] = sys._getframe(1)
             if frame is None:
-                raise _NOT_FOUND_EXCEPTION
+                raise _NOT_FOUND_ERROR
             else:
                 self._name = self._search_name(frame)
         return self._name
@@ -159,7 +160,6 @@ class AutoName:
         if self._name is None:
             names = [key for key, val in vars(owner).items() if val is self]
             if len(names) > 1:
-                raise NameError(
-                    "Can not assign multiples names to the same object.")
+                raise _MULTIPLE_NAMES_ERROR
             self._name = names[0]
         return self
