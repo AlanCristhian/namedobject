@@ -4,7 +4,7 @@ import unittest
 
 import name
 import _module
-import _library._inner
+import _library._inner  # type: ignore[import]
 
 
 class AutoNameSuite(unittest.TestCase):
@@ -16,14 +16,10 @@ class AutoNameSuite(unittest.TestCase):
         obj = name.AutoName()
         self.assertEqual(obj.__name__, "obj")
 
-    def test_NameError_in_multiple_assignment(self) -> None:
-        description = r"Cannot assign multiples names to the same object."
-        with self.assertRaisesRegex(NameError, description):
-            a = b = name.AutoName()
-            a.__name__
-        with self.assertRaisesRegex(NameError, description):
-            a = b = name.AutoName()
-            b.__name__
+    def test_multiple_assignment(self) -> None:
+        a = b = name.AutoName()
+        self.assertEqual(a.__name__, "a")
+        self.assertEqual(b.__name__, "a")
 
     def test_unpacking(self) -> None:
         x, y = name.AutoName(2)
@@ -75,7 +71,7 @@ class AutoNameSuite(unittest.TestCase):
             attr = name.AutoName()
         self.assertEqual(Namespace.attr.__name__, "attr")
 
-    def test___assigned_name___in___init___method(self):
+    def test___assigned_name___in_a_property_method(self):
         class Number(name.AutoName):
             @property
             def name(self):
@@ -83,28 +79,20 @@ class AutoNameSuite(unittest.TestCase):
         n = Number()
         self.assertEqual(n.name, "n")
 
-    def test_NameError_in_multiple_assignment_in_namespace(self) -> None:
-        description = r"Cannot assign multiples names to the same object."
-        with self.assertRaisesRegex(NameError, description):
-            class Multiple_1:
-                attr_1 = attr_2 = name.AutoName()
-            Multiple_1.attr_1.__name__
-        with self.assertRaisesRegex(NameError, description):
-            class Multiple_2:
-                attr_1 = attr_2 = name.AutoName()
-            Multiple_2.attr_2.__name__
+    def test_multiple_assignment_in_namespace(self) -> None:
+        class Multiple:
+            attr_1 = attr_2 = name.AutoName()
+        self.assertEqual(Multiple.attr_1.__name__, "attr_1")
+        self.assertEqual(Multiple.attr_2.__name__, "attr_1")
 
 
 class ModuleSuite(unittest.TestCase):
     def test_single_assignment_in_module(self) -> None:
         self.assertEqual(_module.obj_1.__name__, "obj_1")
 
-    def test_NameError_in_multiple_assignment_in_module(self) -> None:
-        description = r"Cannot assign multiples names to the same object."
-        with self.assertRaisesRegex(NameError, description):
-            _module.a.__name__
-        with self.assertRaisesRegex(NameError, description):
-            _module.b.__name__
+    def test_multiple_assignment_in_module(self) -> None:
+        self.assertEqual(_module.a.__name__, "a")
+        self.assertEqual(_module.b.__name__, "a")
 
     def test_unpacking_in_module(self) -> None:
         self.assertEqual(_module.c.__name__, "c")
@@ -132,12 +120,9 @@ class LibrarySuite(unittest.TestCase):
     def test_single_assignment_in_module(self) -> None:
         self.assertEqual(_library._inner.obj_1.__name__, "obj_1")
 
-    def test_NameError_in_multiple_assignment_in_module(self) -> None:
-        description = r"Cannot assign multiples names to the same object."
-        with self.assertRaisesRegex(NameError, description):
-            _library._inner.a.__name__
-        with self.assertRaisesRegex(NameError, description):
-            _library._inner.b.__name__
+    def test_multiple_assignment_in_module(self) -> None:
+        self.assertEqual(_library._inner.a.__name__, "a")
+        self.assertEqual(_library._inner.b.__name__, "a")
 
     def test_unpacking_in_module(self) -> None:
         self.assertEqual(_library._inner.c.__name__, "c")
@@ -159,8 +144,7 @@ class LibrarySuite(unittest.TestCase):
         self.assertEqual(expected, "(e, f, g)")
 
     def test_assigned_name_in_a_namespace(self) -> None:
-        self.assertEqual(_library._inner.Namespace.attr.__name__,
-                         "attr")
+        self.assertEqual(_library._inner.Namespace.attr.__name__, "attr")
 
 
 if __name__ == '__main__':

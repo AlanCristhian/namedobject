@@ -9,20 +9,18 @@
 from __future__ import annotations
 
 from types import FrameType, ModuleType
-from typing import Generator, Iterator, Dict, Any, Optional, List, Union
+from typing import Generator, Iterator, Dict, Any, Optional
 import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.2.3"
+__version__ = "0.3.0"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
 
 
 _NOT_FOUND_ERROR = NameError("The name of this object has not been found.")
-_MULTIPLE_NAMES_ERROR = NameError(
-    "Cannot assign multiples names to the same object.")
 
 
 # Yields all locals variables in the higher (calling) frames
@@ -33,7 +31,7 @@ def _get_outer_locals(frame: Optional[FrameType]) -> _FrameGenerator:
 
 
 # Get the path of the module where the AutoName instance has been defined
-def _get_module_path() -> Union[str, None]:
+def _get_module_path() -> Optional[str]:
     frame = sys._getframe(2)
     while frame.f_locals is not frame.f_globals:
         frame = frame.f_back  # type: ignore
@@ -81,7 +79,7 @@ class AutoName:
         # NOTE 2: The same object could have many names in differents scopes.
         # So, I stores all names in the 'scopes' var. The valid name is one
         # that is in the last scope.
-        scopes = []
+        last_name: Optional[str] = None
 
         for variables in _get_outer_locals(frame):
 
@@ -89,77 +87,45 @@ class AutoName:
             # I stores all in the 'names' var. This situation happen when user
             # assign the object to multiples variables with the "multiple
             # assignment syntax".
-            names: List[str] = []
-            variables_items = iter(variables.items())
-            for name, value in variables_items:
-                len_names = self._search_recursively(value, names, name)
-
-                # NOTE 4: since python 3.6, dictionaries remember the order of
-                # items inserted. And since 3.7 that behaviour are a intended
-                # feature. Because that, when the user make a multiple
-                # assignment, python stores each name close to each other. So,
-                # to know if the user has made a multiple assignment is
-                # enought to check if the next name is the object, then stop.
-                if len_names:
-                    try:
-                        name, value = next(variables_items)
-                    except StopIteration:
-                        pass
-                    else:
-                        if value is self:
-                            names.append(name)
-                    finally:
-                        break
-
-            if names:
-                scopes.append(names)
-        if scopes:
-
-            # Remember: the valid name is one that is in the last scope.
-            names = scopes[-1]
-            if len(names) > 1:  # Check for multiple assignment.
-                raise _MULTIPLE_NAMES_ERROR
-            else:
-                return names[0]
+            for key, value in variables.items():
+                name = self._search_recursively(value, key)
+                if name:
+                    last_name = name
+                    break
+        if last_name:
+            return last_name
         raise _NOT_FOUND_ERROR
 
-    def _search_recursively(
-        self,
-        value: Any,
-        names: List[str],
-        name: str,
-    ) -> int:
+    def _search_recursively(self, value: Any, name: str,) -> Optional[str]:
 
         # search the name in the frame
         if value is self:
-            names.append(name)
+            return name
 
         # Search the name in a module
         elif isinstance(value, ModuleType):
             if hasattr(value, "__file__"):
                 if value.__file__ not in {None, self._module}:
-                    return len(names)
+                    return None
                 for key, val in vars(value).items():
-                    len_names = self._search_recursively(val, names, key)
-                    if len_names > 1:
-                        break
-        return len(names)
+                    new_name = self._search_recursively(val, key)
+                    if new_name:
+                        return new_name
+        return None
 
     @property
     def __name__(self) -> str:
         """Search the name of the instance of the current class."""
         if self._name is None:
             frame: Optional[FrameType] = sys._getframe(1)
-            if frame is None:
-                raise _NOT_FOUND_ERROR
-            else:
+            if frame:
                 self._name = self._search_name(frame)
+            else:
+                raise _NOT_FOUND_ERROR
         return self._name
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance: Any, owner: Any) -> "AutoName":
+        """Search the name of the attribute of the current class."""
         if self._name is None:
-            names = [key for key, val in vars(owner).items() if val is self]
-            if len(names) > 1:
-                raise _MULTIPLE_NAMES_ERROR
-            self._name = names[0]
+            self._name = next(k for k, v in vars(owner).items() if v is self)
         return self

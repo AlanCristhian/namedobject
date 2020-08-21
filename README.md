@@ -78,7 +78,7 @@ Also, multiple inheritance is allowed.
 <class 'complex'>
 ```
 
-**Warning:** See how I initialize bot `Numeric` and `name.AutoName`
+**Warning:** See how I initialize both `Numeric` and `name.AutoName`
 base clases.
 
 ## Caveats
@@ -91,21 +91,12 @@ They wont work with multiple assignment. E.g:
 >>> import name
 >>> a = b = name.AutoName()
 >>> a.__name__
-Traceback (most recent call last):
-  File "<pyshell#2>", line 1, in <module>
-    a.__name__
-    ...
-NotImplementedError: Cannot assign multiples names to the same object.
+'a'
 >>> b.__name__
-Traceback (most recent call last):
-  File "<pyshell#2>", line 1, in <module>
-    a.__name__
-    ...
-NotImplementedError: Cannot assign multiples names to the same object.
+'b'
 ```
 
-Note that the error is raised only wen you get the `__name__`
-attribute.
+`AutoName` store the first name in the expression.
 
 ### Custom attribute name to store the object name
 
