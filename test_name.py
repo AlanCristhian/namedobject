@@ -71,7 +71,7 @@ class AutoNameSuite(unittest.TestCase):
             attr = name.AutoName()
         self.assertEqual(Namespace.attr.__name__, "attr")
 
-    def test___assigned_name___in_a_property_method(self):
+    def test_assigned_name_in_a_property_method(self) -> None:
         class Number(name.AutoName):
             @property
             def name(self):
@@ -84,6 +84,15 @@ class AutoNameSuite(unittest.TestCase):
             attr_1 = attr_2 = name.AutoName()
         self.assertEqual(Multiple.attr_1.__name__, "attr_1")
         self.assertEqual(Multiple.attr_2.__name__, "attr_1")
+
+    def test_single_assignment_in_context_manager(self) -> None:
+        with name.AutoName() as context_obj:
+            self.assertEqual(context_obj.__name__, "context_obj")
+
+    def test_multiple_assignment_in_context_manager(self) -> None:
+        with name.AutoName(2) as (context_ob_1, context_ob_2):
+            self.assertEqual(context_ob_1.__name__, "context_ob_1")
+            self.assertEqual(context_ob_2.__name__, "context_ob_2")
 
 
 class ModuleSuite(unittest.TestCase):

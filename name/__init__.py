@@ -14,7 +14,7 @@ import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -129,3 +129,9 @@ class AutoName:
         if self._name is None:
             self._name = next(k for k, v in vars(owner).items() if v is self)
         return self
+
+    def __enter__(self) -> "AutoName":
+        return self
+
+    def __exit__(*args: Any) -> None:
+        pass
