@@ -75,6 +75,21 @@ Also, multiple inheritance is allowed. ::
 **Warning:** See how I initialize bot ``Numeric`` and ``name.AutoName``
 base clases.
 
+
+``AutoName`` is also a *context manager* that you can use in a
+``with`` statement. ::
+
+  >>> import name
+  >>> with name.AutoName() as obj:
+  ...     obj.__name__
+  ...
+  'obj'
+  >>> with name.AutoName(3) as (x, y, z):
+  ...     (x.__name__, y.__name__, z.__name__)
+  ...
+  ('x', 'y', 'z')
+  >>>
+
 -------
 Caveats
 -------
