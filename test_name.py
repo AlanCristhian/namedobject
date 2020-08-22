@@ -33,7 +33,7 @@ class AutoNameSuite(unittest.TestCase):
 
     def test_subclass(self) -> None:
         class SubClass(name.AutoName):
-            def __init__(self, count: int = 0) -> None:
+            def __init__(self, count: int = 1) -> None:
                 super().__init__(count)
         obj = SubClass()
         self.assertEqual(obj.__name__, "obj")
@@ -44,7 +44,7 @@ class AutoNameSuite(unittest.TestCase):
                 self.__type__ = type
 
         class Symbol(Numeric, name.AutoName):
-            def __init__(self, type: object, count: int = 0) -> None:
+            def __init__(self, type: object, count: int = 1) -> None:
                 Numeric.__init__(self, type)
                 name.AutoName.__init__(self, count)
 
@@ -57,7 +57,7 @@ class AutoNameSuite(unittest.TestCase):
         `name.AutoName`.
         """
         class Atom(name.AutoName):
-            def __init__(self, count: int = 0) -> None:
+            def __init__(self, count: int = 1) -> None:
                 super().__init__(count)
 
             def __repr__(self) -> str:
@@ -74,7 +74,7 @@ class AutoNameSuite(unittest.TestCase):
     def test_assigned_name_in_a_property_method(self) -> None:
         class Number(name.AutoName):
             @property
-            def name(self):
+            def name(self) -> str:
                 return self.__name__
         n = Number()
         self.assertEqual(n.name, "n")
@@ -93,6 +93,17 @@ class AutoNameSuite(unittest.TestCase):
         with name.AutoName(2) as (context_ob_1, context_ob_2):
             self.assertEqual(context_ob_1.__name__, "context_ob_1")
             self.assertEqual(context_ob_2.__name__, "context_ob_2")
+
+    def test_single_var_in_for_loop(self) -> None:
+        for x in [name.AutoName()]:
+            pass
+        self.assertEqual(x.__name__, "x")
+
+    def test_two_vars_in_for_loop(self) -> None:
+        for x, y in [name.AutoName(2)]:
+            pass
+        self.assertEqual(x.__name__, "x")
+        self.assertEqual(y.__name__, "y")
 
 
 class ModuleSuite(unittest.TestCase):
@@ -124,6 +135,20 @@ class ModuleSuite(unittest.TestCase):
     def test_assigned_name_in_a_namespace(self) -> None:
         self.assertEqual(_module.Namespace.attr.__name__, "attr")
 
+    def test_single_assignment_in_context_manager(self) -> None:
+        self.assertEqual(_module.context_0.__name__, "context_0")
+
+    def test_multiple_assignment_in_context_manager(self) -> None:
+        self.assertEqual(_module.context_1.__name__, "context_1")
+        self.assertEqual(_module.context_2.__name__, "context_2")
+
+    def test_single_var_in_for_loop(self) -> None:
+        self.assertEqual(_module.h.__name__, "h")
+
+    def test_two_vars_in_for_loop(self) -> None:
+        self.assertEqual(_module.i.__name__, "i")
+        self.assertEqual(_module.j.__name__, "j")
+
 
 class LibrarySuite(unittest.TestCase):
     def test_single_assignment_in_module(self) -> None:
@@ -154,6 +179,20 @@ class LibrarySuite(unittest.TestCase):
 
     def test_assigned_name_in_a_namespace(self) -> None:
         self.assertEqual(_library._inner.Namespace.attr.__name__, "attr")
+
+    def test_single_assignment_in_context_manager(self) -> None:
+        self.assertEqual(_library._inner.context_0.__name__, "context_0")
+
+    def test_multiple_assignment_in_context_manager(self) -> None:
+        self.assertEqual(_library._inner.context_1.__name__, "context_1")
+        self.assertEqual(_library._inner.context_2.__name__, "context_2")
+
+    def test_single_var_in_for_loop(self) -> None:
+        self.assertEqual(_library._inner.h.__name__, "h")
+
+    def test_two_vars_in_for_loop(self) -> None:
+        self.assertEqual(_library._inner.i.__name__, "i")
+        self.assertEqual(_library._inner.j.__name__, "j")
 
 
 if __name__ == '__main__':

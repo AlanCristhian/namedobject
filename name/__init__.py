@@ -14,7 +14,7 @@ import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -60,8 +60,8 @@ class AutoName:
     'c'
 
     """
-    def __init__(self, count: int = 0):
-        assert count >= 0, "Expected positive 'int' number, got '%r'" % count
+    def __init__(self, count: int = 1):
+        assert count >= 1, "Expected positive 'int' number, got '%r'" % count
         self._count = count
         self._name: Optional[str] = None
         self._module = _get_module_path()
@@ -116,7 +116,7 @@ class AutoName:
 
     @property
     def __name__(self) -> str:
-        """Search the name of the instance of the current class."""
+        """Search the name of the instance of the current instance."""
         if self._name is None:
             frame: Optional[FrameType] = sys._getframe(1)
             if frame:
