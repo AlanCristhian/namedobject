@@ -2,7 +2,7 @@ from setuptools import setup  # type: ignore[import]
 
 setup(
     name="name",
-    version="0.4.1",
+    version="0.5.0",
     packages=["name"],
     package_data={
         "name": ["__init__.py", "py.typed"],

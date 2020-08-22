@@ -18,8 +18,8 @@ class AutoNameSuite(unittest.TestCase):
 
     def test_multiple_assignment(self) -> None:
         a = b = name.AutoName()
-        self.assertEqual(a.__name__, "a")
-        self.assertEqual(b.__name__, "a")
+        self.assertEqual(a.__name__, "b")
+        self.assertEqual(b.__name__, "b")
 
     def test_unpacking(self) -> None:
         x, y = name.AutoName(2)
@@ -82,8 +82,8 @@ class AutoNameSuite(unittest.TestCase):
     def test_multiple_assignment_in_namespace(self) -> None:
         class Multiple:
             attr_1 = attr_2 = name.AutoName()
-        self.assertEqual(Multiple.attr_1.__name__, "attr_1")
-        self.assertEqual(Multiple.attr_2.__name__, "attr_1")
+        self.assertEqual(Multiple.attr_1.__name__, "attr_2")
+        self.assertEqual(Multiple.attr_2.__name__, "attr_2")
 
     def test_single_assignment_in_context_manager(self) -> None:
         with name.AutoName() as context_obj:

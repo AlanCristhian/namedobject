@@ -14,7 +14,7 @@ import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -88,7 +88,7 @@ class AutoName:
             # I stores all in the 'names' var. This situation happen when user
             # assign the object to multiples variables with the "multiple
             # assignment syntax".
-            for key, value in variables.items():
+            for key, value in reversed(variables.items()):
                 name = self._search_recursively(value, key)
                 if name:
                     last_name = name
@@ -125,11 +125,8 @@ class AutoName:
                 raise _NOT_FOUND_ERROR
         return self._name
 
-    def __get__(self: T, instance: Any, owner: Any) -> T:
-        """Search the name of the attribute of the current class."""
-        if self._name is None:
-            self._name = next(k for k, v in vars(owner).items() if v is self)
-        return self
+    def __set_name__(self, owner, name):
+        self._name = name
 
     def __enter__(self: T) -> T:
         return self
