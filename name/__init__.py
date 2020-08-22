@@ -14,7 +14,7 @@ import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.5.2"
+__version__ = "0.5.3"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -108,7 +108,7 @@ class AutoName:
             if hasattr(value, "__file__"):
                 if value.__file__ not in {None, self._module}:
                     return None
-                for key, val in vars(value).items():
+                for key, val in reversed(vars(value).items()):
                     new_name = self._search_recursively(val, key)
                     if new_name:
                         return new_name

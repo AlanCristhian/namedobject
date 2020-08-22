@@ -111,8 +111,8 @@ class ModuleSuite(unittest.TestCase):
         self.assertEqual(_module.obj_1.__name__, "obj_1")
 
     def test_multiple_assignment_in_module(self) -> None:
-        self.assertEqual(_module.a.__name__, "a")
-        self.assertEqual(_module.b.__name__, "a")
+        self.assertEqual(_module.a.__name__, "b")
+        self.assertEqual(_module.b.__name__, "b")
 
     def test_unpacking_in_module(self) -> None:
         self.assertEqual(_module.c.__name__, "c")
@@ -155,8 +155,8 @@ class LibrarySuite(unittest.TestCase):
         self.assertEqual(_library._inner.obj_1.__name__, "obj_1")
 
     def test_multiple_assignment_in_module(self) -> None:
-        self.assertEqual(_library._inner.a.__name__, "a")
-        self.assertEqual(_library._inner.b.__name__, "a")
+        self.assertEqual(_library._inner.a.__name__, "b")
+        self.assertEqual(_library._inner.b.__name__, "b")
 
     def test_unpacking_in_module(self) -> None:
         self.assertEqual(_library._inner.c.__name__, "c")
