@@ -9,15 +9,16 @@
 from __future__ import annotations
 
 from types import FrameType, ModuleType
-from typing import Generator, Iterator, Dict, Any, Optional
+from typing import Generator, Iterator, Dict, Any, Optional, TypeVar
 import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
+T = TypeVar("T", bound="AutoName")
 
 
 _NOT_FOUND_ERROR = NameError("The name of this object has not been found.")
@@ -67,7 +68,7 @@ class AutoName:
 
     # I define the '__iter__' method to give compatibility
     # with the unpack sequence assignment syntax.
-    def __iter__(self) -> Iterator[AutoName]:
+    def __iter__(self: T) -> Iterator[T]:
 
         # NOTE 1: I call 'type(self)' to warranty that it
         # method works even in a subclass of this.
@@ -124,13 +125,13 @@ class AutoName:
                 raise _NOT_FOUND_ERROR
         return self._name
 
-    def __get__(self, instance: Any, owner: Any) -> "AutoName":
+    def __get__(self: T, instance: Any, owner: Any) -> T:
         """Search the name of the attribute of the current class."""
         if self._name is None:
             self._name = next(k for k, v in vars(owner).items() if v is self)
         return self
 
-    def __enter__(self) -> "AutoName":
+    def __enter__(self: T) -> T:
         return self
 
     def __exit__(*args: Any) -> None:
