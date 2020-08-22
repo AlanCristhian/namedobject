@@ -14,7 +14,7 @@ import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -125,7 +125,7 @@ class AutoName:
                 raise _NOT_FOUND_ERROR
         return self._name
 
-    def __set_name__(self, owner, name):
+    def __set_name__(self, owner: Any, name: str) -> None:
         self._name = name
 
     def __enter__(self: T) -> T:
