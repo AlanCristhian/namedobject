@@ -12,9 +12,8 @@ from types import FrameType
 from typing import Generator, Iterator, Dict, Any, Optional, TypeVar, Set
 import sys
 
-
 __all__ = ["AutoName"]
-__version__ = "0.5.5"
+__version__ = "0.5.6"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -34,7 +33,7 @@ def _get_outer_locals(frame: Optional[FrameType]) -> _FrameGenerator:
 # Get the path of the module where the AutoName instance has been defined
 def _get_module_path() -> Any:
     frame: FrameType = sys._getframe(2)
-    while frame.f_locals is not frame.f_globals:
+    while "__name__" not in frame.f_locals:
         frame = frame.f_back  # type: ignore
     return frame.f_locals["__name__"]
 
@@ -88,6 +87,7 @@ class AutoName:
         last_name: Optional[str] = None
         names: Set[Optional[str]] = set()
         for variables in _get_outer_locals(frame):
+
             # NOTE 2: An object could have various names in the same scope. So,
             # I stores all in the 'names' var. This situation happen when user
             # assign the object to multiples variables with the "multiple
@@ -127,5 +127,5 @@ class AutoName:
     def __enter__(self: _T) -> _T:
         return self
 
-    def __exit__(*args: Any) -> None:
+    def __exit__(*args: Any) -> Optional[bool]:
         pass
