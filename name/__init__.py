@@ -8,13 +8,13 @@
 
 from __future__ import annotations
 
-from itertools import accumulate
-from types import FrameType, ModuleType
-from typing import Generator, Iterator, Dict, Any, Optional, TypeVar, List
+from types import FrameType
+from typing import Generator, Iterator, Dict, Any, Optional, TypeVar, Set
 import sys
 
+
 __all__ = ["AutoName"]
-__version__ = "0.5.4"
+__version__ = "0.5.5"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -31,14 +31,9 @@ def _get_outer_locals(frame: Optional[FrameType]) -> _FrameGenerator:
         frame = frame.f_back
 
 
-# sum two strings and add a dot between
-def _accumulator(x: str, y: str) -> str:
-    return f"{x}.{y}"
-
-
 # Get the path of the module where the AutoName instance has been defined
 def _get_module_path() -> Any:
-    frame = sys._getframe(2)
+    frame: FrameType = sys._getframe(2)
     while frame.f_locals is not frame.f_globals:
         frame = frame.f_back  # type: ignore
     return frame.f_locals["__name__"]
@@ -70,7 +65,6 @@ class AutoName:
         self._count = count
         self._name: Optional[str] = None
         self._module_path = _get_module_path()
-        self._modules: List[ModuleType]
 
     # I define the '__iter__' method to give compatibility
     # with the unpack sequence assignment syntax.
@@ -83,45 +77,38 @@ class AutoName:
     # Search the assigned name of the current object.
     def _search_name(self, frame: Optional[FrameType]) -> str:
 
-        # Get all modules where the object could be
-        self._modules = [
-            sys.modules[name]
-            for name in accumulate(self._module_path.split("."), _accumulator)
-        ]
+        # for module in modules:
+        if self._module_path != "__main__":
+            module = sys.modules[self._module_path]
+            for name, value in reversed(vars(module).items()):
+                if value is self:
+                    return name
 
-        # NOTE 2: The same object could have many names in differents scopes.
-        # So, I stores all names in the 'scopes' var. The valid name is one
-        # that is in the last scope.
+        # Search the name in all frames
         last_name: Optional[str] = None
-
+        names: Set[Optional[str]] = set()
         for variables in _get_outer_locals(frame):
-
-            # NOTE 3: An object could have various names in the same scope. So,
+            # NOTE 2: An object could have various names in the same scope. So,
             # I stores all in the 'names' var. This situation happen when user
             # assign the object to multiples variables with the "multiple
             # assignment syntax".
-            for key, value in reversed(variables.items()):
-                name = self._search_recursively(value, key)
-                if name:
+            for name, value in reversed(variables.items()):
+                if value is self:
                     last_name = name
                     break
+
+            # NOTE 3: The same object could have many names in differents
+            # scopes. The valid name is the one that is in the last scope.
+            # If the name is the same than the precedent scope, then I can
+            # break the loop.
+            if last_name in names:
+                break
+            else:
+                names.add(last_name)
         if last_name:
             return last_name
+
         raise _NOT_FOUND_ERROR
-
-    def _search_recursively(self, value: Any, name: str) -> Optional[str]:
-
-        # search the name in the frame
-        if value is self:
-            return name
-
-        # Search the name in a module
-        if value in self._modules:
-            for key, val in reversed(vars(value).items()):
-                new_name = self._search_recursively(val, key)
-                if new_name:
-                    return new_name
-        return None
 
     @property
     def __name__(self) -> str:
