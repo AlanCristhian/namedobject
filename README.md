@@ -109,7 +109,8 @@ the frame where the object was created. If it can't find, searches it in the
 upper frame an so until the object name is found. I it can't find a name, then
 the default `<nameless>` value are set.
 
-If the object is in a module, just look for its name in the global namespace.
+If the object is in a module, just look for its name in the global namespace of
+such module.
 
 The name will be searched only if you look up the `.__name__` property, not at
 the instantiation time. The name is cached once has been found.
@@ -127,6 +128,8 @@ the instantiation time. The name is cached once has been found.
 >>> b.__name__
 'b'
 ```
+[See the `__set_name__` documentation](https://docs.python.org/3/reference/datamodel.html?highlight=__get__#object.__set_name__)
+
 ### Custom attribute name to store the object name
 
 If you make a subclass of `AutoName`, you can not access to the
@@ -174,10 +177,7 @@ You can't create an instance of `AutoName` and store it in an object attibute:
 ...         self.attribute = name.AutoName()
 ...
 >>> Object().attribute.__name__
-Traceback (most recent call last):
-  File "<pyshell#2>", line 1, in <module>
-  ...
-NameError: The name of this object has not been found.
+'<nameless>'
 ```
 
 **To do that** the attribute should be an *class attribute*:
