@@ -13,7 +13,7 @@ from typing import Generator, Iterator, Dict, Any, Optional, TypeVar, Set
 import sys
 
 __all__ = ["AutoName"]
-__version__ = "0.5.6"
+__version__ = "0.5.7"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -33,7 +33,7 @@ def _get_outer_locals(frame: Optional[FrameType]) -> _FrameGenerator:
 # Get the path of the module where the AutoName instance has been defined
 def _get_module_path() -> Any:
     frame: FrameType = sys._getframe(2)
-    while "__name__" not in frame.f_locals:
+    while frame.f_code.co_name != "<module>":
         frame = frame.f_back  # type: ignore
     return frame.f_locals["__name__"]
 
