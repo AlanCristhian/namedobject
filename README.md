@@ -9,6 +9,11 @@ A library with a base class that stores the assigned name of an object.
 'a'
 ```
 
+## Requirements
+
+`name` requires Python 3.6 or newer. It has no third-party dependencies and
+works on both POSIX and Windows.
+
 ## Installation
 
 ```shell
@@ -17,7 +22,7 @@ $ pip install git+https://github.com/AlanCristhian/name.git
 
 ## Tutorial
 
-This module only have one class: ``AutoName``. This creates an object with the
+`name` has only one class: `AutoName`. It creates an object with the
 `__name__` attribute that stores the name. E.g:
 
 ```pycon
@@ -27,7 +32,7 @@ This module only have one class: ``AutoName``. This creates an object with the
 'a'
 ```
 
-You can create multiples variables using the unpack sequence syntax. To do that
+It can make multiple variables using the unpack sequence syntax. To do that
 you must pass the amount of object that you want as argument.
 
 ```pycon
@@ -47,7 +52,7 @@ the `__init__` method.
 ```pycon
 >>> import name
 >>> class Number(name.AutoName):
-...     def __init__(self, value, count=0):
+...     def __init__(self, value, count=1):
 ...         super().__init__(count)
 ...         self.value = value
 ...
@@ -58,7 +63,7 @@ the `__init__` method.
 1
 ```
 
-Also, multiple inheritance is allowed.
+Also works with multiple inheritance.
 
 ```pycon
 >>> import name
@@ -78,8 +83,7 @@ Also, multiple inheritance is allowed.
 <class 'complex'>
 ```
 
-**Warning:** See how I initialize both `Numeric` and `name.AutoName`
-base clases.
+**Warning:** See how both `Numeric` and `name.AutoName` have been initialized.
 
 `AutoName` is also a *context manager* that you can use in a `with` statement.
 
@@ -98,9 +102,22 @@ base clases.
 
 ## Caveats
 
+### How it works
+
+If the object is in `__main__`, `AutoName` searches the name of the object in
+the frame where the object was created. If it can't find, searches it in the
+upper frame an so until the object name is found. I it can't find a name, then
+the default `<nameless>` value are set.
+
+If the object is in a module, just look for its name in the global namespace.
+
+The name will be searched only if you look up the `.__name__` property, not at
+the instantiation time. The name is cached once has been found.
+
 ### Multiple assignment syntax
 
-They wont work with multiple assignment. E.g:
+`AutoName` stores the last name in the expression in the same way that
+`__set__name__` does.
 
 ```pycon
 >>> import name
@@ -110,9 +127,6 @@ They wont work with multiple assignment. E.g:
 >>> b.__name__
 'b'
 ```
-
-`AutoName` store the first name in the expression.
-
 ### Custom attribute name to store the object name
 
 If you make a subclass of `AutoName`, you can not access to the

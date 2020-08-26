@@ -9,18 +9,15 @@
 from __future__ import annotations
 
 from types import FrameType
-from typing import Generator, Iterator, Dict, Any, Optional, TypeVar, Set
+from typing import Generator, Iterator, Dict, Any, Optional, TypeVar
 import sys
 
 __all__ = ["AutoName"]
-__version__ = "0.5.7"
+__version__ = "0.6.0"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
 _T = TypeVar("_T", bound="AutoName")
-
-
-_NOT_FOUND_ERROR = NameError("The name of this object has not been found.")
 
 
 # Yields all locals variables in the higher (calling) frames
@@ -69,56 +66,50 @@ class AutoName:
     # with the unpack sequence assignment syntax.
     def __iter__(self: _T) -> Iterator[_T]:
 
-        # NOTE 1: I call 'type(self)' to warranty that it
-        # method works even in a subclass of this.
+        # I call 'type(self)' to warranty that __iter__
+        # method works even in a subclass of AutoName.
         return (type(self)() for _ in range(self._count))
 
-    # Search the assigned name of the current object.
-    def _search_name(self, frame: Optional[FrameType]) -> str:
+    def _search_in_module(self) -> str:
+        module = sys.modules[self._module_path]
+        for name, value in reversed(vars(module).items()):
+            if value is self:
+                return name
+        return "<nameless>"
 
-        # for module in modules:
-        if self._module_path != "__main__":
-            module = sys.modules[self._module_path]
-            for name, value in reversed(vars(module).items()):
-                if value is self:
-                    return name
-
-        # Search the name in all frames
-        last_name: Optional[str] = None
-        names: Set[Optional[str]] = set()
+    def _search_in_frames(self) -> str:
+        frame: Optional[FrameType] = sys._getframe(2)
+        last_name = "<nameless>"
+        name_seen = "<nameless>"
         for variables in _get_outer_locals(frame):
 
-            # NOTE 2: An object could have various names in the same scope. So,
-            # I stores all in the 'names' var. This situation happen when user
-            # assign the object to multiples variables with the "multiple
-            # assignment syntax".
+            # When a user assign an object to several variables with
+            # the "multiple assignment syntax", that object will have
+            # more than one name. The valid name is the last, that's
+            # why y reverse the 'variables' dictionary.
             for name, value in reversed(variables.items()):
                 if value is self:
                     last_name = name
                     break
 
-            # NOTE 3: The same object could have many names in differents
-            # scopes. The valid name is the one that is in the last scope.
-            # If the name is the same than the precedent scope, then I can
-            # break the loop.
-            if last_name in names:
-                break
+            # The same object could have many names in
+            # differents scopes. The valid name is the one
+            # that is the same than the precedent scope.
+            if last_name == name_seen:
+                return last_name
             else:
-                names.add(last_name)
-        if last_name:
-            return last_name
+                name_seen = last_name
 
-        raise _NOT_FOUND_ERROR
+        return "<nameless>"
 
     @property
     def __name__(self) -> str:
         """Search the name of the instance of the current instance."""
         if self._name is None:
-            frame: Optional[FrameType] = sys._getframe(1)
-            if frame:
-                self._name = self._search_name(frame)
+            if self._module_path == "__main__":
+                self._name = self._search_in_frames()
             else:
-                raise _NOT_FOUND_ERROR
+                self._name = self._search_in_module()
         return self._name
 
     def __set_name__(self, owner: Any, name: str) -> None:

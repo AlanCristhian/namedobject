@@ -10,24 +10,31 @@ A library with a base class that stores the assigned name of an object. ::
   'a'
 
 ------------
+Requirements
+------------
+
+`name` requires Python 3.6 or newer. It has no third-party dependencies and
+works on both POSIX and Windows.
+
+------------
 Installation
 ------------
 
-  ``$ pip install git+https://github.com/AlanCristhian/name.git``
+  `$ pip install git+https://github.com/AlanCristhian/name.git`
 
 --------
 Tutorial
 --------
 
-This module only have one class: ``AutoName``. This creates an object with the
-``__name__`` attribute that stores the name. E.g: ::
+`name` has only one class: `AutoName`. It creates an object with the
+`__name__` attribute that stores the name. E.g: ::
 
   >>> import name
   >>> a = name.AutoName()
   >>> a.__name__
   'a'
 
-You can create multiples variables using the unpack sequence syntax. To do that
+It can make multiple variables using the unpack sequence syntax. To do that
 you must pass the amount of object that you want as argument.::
 
   >>> import name
@@ -39,12 +46,12 @@ you must pass the amount of object that you want as argument.::
   >>> c.__name__
   'c'
 
-To make your own subclass that inherit from ``name.AutoName``, you must chall
-the ``__init__`` method. ::
+To make your own subclass that inherit from `name.AutoName`, you must chall
+the `__init__` method. ::
 
   >>> import name
   >>> class Number(name.AutoName):
-  ...     def __init__(self, value, count=0):
+  ...     def __init__(self, value, count=1):
   ...         super().__init__(count)
   ...         self.value = value
   ...
@@ -54,7 +61,7 @@ the ``__init__`` method. ::
   >>> a.value
   1
 
-Also, multiple inheritance is allowed. ::
+Also works with multiple inheritance. ::
 
   >>> import name
   ... class Numeric:
@@ -62,7 +69,7 @@ Also, multiple inheritance is allowed. ::
   ...         self.type = type
   ...
   >>> class Symbol(Numeric, name.AutoName):
-  ...     def __init__(self, type, count=0):
+  ...     def __init__(self, type, count=1):
   ...         Numeric.__init__(self, type)
   ...         name.AutoName.__init__(self, count)
   ...
@@ -72,12 +79,10 @@ Also, multiple inheritance is allowed. ::
   >>> c.type
   <class 'complex'>
 
-**Warning:** See how I initialize bot ``Numeric`` and ``name.AutoName``
-base clases.
+**Warning:** See how both `Numeric` and `name.AutoName` have been initialized.
 
-
-``AutoName`` is also a *context manager* that you can use in a
-``with`` statement. ::
+`AutoName` is also a *context manager* that you can use in a
+`with` statement. ::
 
   >>> import name
   >>> with name.AutoName() as obj:
@@ -94,10 +99,24 @@ base clases.
 Caveats
 -------
 
+How it works
+============
+
+If the object is in `__main__`, `AutoName` searches the name of the object in
+the frame where the object was created. If it can't find, searches it in the
+upper frame an so until the object name is found. I it can't find a name, then
+the default `<nameless>` value are set.
+
+If the object is in a module, just look for its name in the global namespace.
+
+The name will be searched only if you look up the `.__name__` property, not at
+the instantiation time. The name is cached once has been found.
+
 Multiple assignment syntax
 ==========================
 
-They wont work with multiple assignment. E.g: ::
+`AutoName` stores the last name in the expression in the same way that
+`__set__name__` does. ::
 
   >>> import name
   >>> a = b = name.AutoName()
@@ -106,13 +125,13 @@ They wont work with multiple assignment. E.g: ::
   >>> b.__name__
   'b'
 
-`AutoName` store the first name in the expression.
+`See the \_\_set_name\_\_ documentation<https://docs.python.org/3/reference/datamodel.html?highlight=__get__#object.__set_name__>`
 
 Custom attribute name to store the object name
 ==============================================
 
-If you make a subclass of ``AutoName``, you can not access to the
-``__name__`` property from the ``__init__`` method. ::
+If you make a subclass of `AutoName`, you can not access to the
+`__name__` property from the `__init__` method. ::
 
   >>> import name
   >>> class Number(name.AutoName):

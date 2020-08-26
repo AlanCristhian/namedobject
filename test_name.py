@@ -105,6 +105,9 @@ class AutoNameSuite(unittest.TestCase):
         self.assertEqual(x.__name__, "x")
         self.assertEqual(y.__name__, "y")
 
+    def test_default_name(self):
+        self.assertEqual(name.AutoName().__name__, "<nameless>")
+
 
 class ModuleSuite(unittest.TestCase):
     def test_single_assignment_in_module(self) -> None:
