@@ -198,5 +198,26 @@ class LibrarySuite(unittest.TestCase):
         self.assertEqual(_library._inner.j.__name__, "j")
 
 
+class SearchInSourceSuite(AutoNameSuite, ModuleSuite, LibrarySuite):
+    @classmethod
+    def setUpClass(self):
+        global name
+        self.original = name.AutoName
+        name.AutoName = name._SearhInSource
+
+    @classmethod
+    def tearDownClass(self):
+        global name
+        name.AutoName = self.original
+
+    def test_weird_single_assignment(self):
+        weird = name.\
+                \
+            _SearhInSource(
+
+            )
+        self.assertEqual(weird.__name__, "weird")
+
+
 if __name__ == '__main__':
     unittest.main()

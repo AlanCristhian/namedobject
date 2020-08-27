@@ -10,6 +10,9 @@ from __future__ import annotations
 
 from types import FrameType
 from typing import Generator, Iterator, Dict, Any, Optional, TypeVar
+# from pprint import pprint as print
+import ast
+import linecache
 import sys
 
 __all__ = ["AutoName"]
@@ -116,6 +119,91 @@ class AutoName:
         self._name = name
 
     def __enter__(self: _T) -> _T:
+        return self
+
+    def __exit__(*args: Any) -> Optional[bool]:
+        pass
+
+
+_S = TypeVar("_S", bound="_SearhInSource")
+
+
+class _SearhInSource:
+    def __init__(self, count=1):
+        assert count >= 1, "Expected positive 'int' number, got '%r'" % count
+        self._id: int
+        self._count = count
+        self._name: Optional[str] = None
+
+        delta = len(type(self).__mro__) - len(_SearhInSource.__mro__)
+        delta = 1 if delta else 0
+        if count == 1:
+            deepness = 1 + delta
+        else:
+            deepness = 1 if count == 1 else 2 + delta
+        frame = sys._getframe(deepness)
+        self._lineno = frame.f_lineno
+        self._filename = frame.f_code.co_filename
+
+    @property
+    def __name__(self):
+        if self._name is None:
+            lines = [linecache.getline(self._filename, self._lineno)]
+            for i in range(self._lineno - 1, 0, -1):
+                line = linecache.getline(self._filename, i)
+                if not line.endswith("\\\n"):
+                    break
+                lines.append(line)
+
+            statement = "".join(reversed(lines)).lstrip()
+
+            try:
+                tree = ast.parse(statement)
+            except SyntaxError:
+                for i in range(1, 100):
+                    try:
+                        tree = ast.parse(statement)
+                    except SyntaxError:
+                        statement += linecache.getline(
+                            self._filename, self._lineno + i)
+                    else:
+                        break
+            node = tree.body[0]
+            self._name = '<nameless>'
+            if isinstance(node, ast.Assign):
+                if isinstance(node.targets[0], ast.Name):
+                    self._name = node.targets[-1].id
+                elif isinstance(node.targets[0], ast.Tuple):
+                    self._name = node.targets[0].elts[self._id].id
+            elif isinstance(node, ast.For):
+                if isinstance(node.target, ast.Name):
+                    self._name = node.target.id
+                else:
+                    self._name = node.target.elts[self._id].id
+            elif isinstance(node, ast.With):
+                optional_vars = node.items[0].optional_vars
+                if isinstance(optional_vars, ast.Tuple):
+                    self._name = optional_vars.elts[self._id].id
+                elif isinstance(optional_vars, ast.Name):
+                    self._name = optional_vars.id
+        return self._name
+
+    def _set_id(self, id):
+        self._id = id
+        return self
+
+    # I define the '__iter__' method to give compatibility
+    # with the unpack sequence assignment syntax.
+    def __iter__(self: _S) -> Iterator[_S]:
+
+        # I call 'type(self)' to warranty that __iter__
+        # method works even in a subclass of AutoName.
+        return (type(self)(self._count)._set_id(i) for i in range(self._count))
+
+    def __set_name__(self, owner: Any, name: str) -> None:
+        self._name = name
+
+    def __enter__(self: _S) -> _S:
         return self
 
     def __exit__(*args: Any) -> Optional[bool]:
