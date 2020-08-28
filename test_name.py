@@ -121,58 +121,58 @@ class ModuleSuite(unittest.TestCase):
         self.assertEqual(_module.c.__name__, "c")
         self.assertEqual(_module.d.__name__, "d")
 
-    def test_subclass(self) -> None:
+    def test_subclass_in_module(self) -> None:
         self.assertEqual(_module.obj_2.__name__, "obj_2")
 
-    def test_multiple_inheritance(self) -> None:
+    def test_multiple_inheritance_in_module(self) -> None:
         self.assertEqual(_module.obj_3.__name__, "obj_3")
         self.assertEqual(_module.obj_3.__type__, complex)
 
-    def test_assigned_name_in_a_method_of_the_child_class(self) -> None:
+    def test_assignment_in_a_child_class_method_in_module(self) -> None:
         """ Test the stored name in a method of a class that inherit from
         `name.AutoName`.
         """
         expected = repr((_module.e, _module.f, _module.g))
         self.assertEqual(expected, "(e, f, g)")
 
-    def test_assigned_name_in_a_namespace(self) -> None:
+    def test_assigned_name_in_a_namespace_in_module(self) -> None:
         self.assertEqual(_module.Namespace.attr.__name__, "attr")
 
-    def test_single_assignment_in_context_manager(self) -> None:
+    def test_single_assignment_in_context_manager_in_module(self) -> None:
         self.assertEqual(_module.context_0.__name__, "context_0")
 
-    def test_multiple_assignment_in_context_manager(self) -> None:
+    def test_multiple_assignment_in_context_manager_in_module(self) -> None:
         self.assertEqual(_module.context_1.__name__, "context_1")
         self.assertEqual(_module.context_2.__name__, "context_2")
 
-    def test_single_var_in_for_loop(self) -> None:
+    def test_single_var_in_for_loop_in_module(self) -> None:
         self.assertEqual(_module.h.__name__, "h")
 
-    def test_two_vars_in_for_loop(self) -> None:
+    def test_two_vars_in_for_loop_in_module(self) -> None:
         self.assertEqual(_module.i.__name__, "i")
         self.assertEqual(_module.j.__name__, "j")
 
 
 class LibrarySuite(unittest.TestCase):
-    def test_single_assignment_in_module(self) -> None:
+    def test_single_assignment_in_library(self) -> None:
         self.assertEqual(_library._inner.obj_1.__name__, "obj_1")
 
-    def test_multiple_assignment_in_module(self) -> None:
+    def test_multiple_assignment_in_library(self) -> None:
         self.assertEqual(_library._inner.a.__name__, "b")
         self.assertEqual(_library._inner.b.__name__, "b")
 
-    def test_unpacking_in_module(self) -> None:
+    def test_unpacking_in_library(self) -> None:
         self.assertEqual(_library._inner.c.__name__, "c")
         self.assertEqual(_library._inner.d.__name__, "d")
 
-    def test_subclass(self) -> None:
+    def test_subclass_in_library(self) -> None:
         self.assertEqual(_library._inner.obj_2.__name__, "obj_2")
 
-    def test_multiple_inheritance(self) -> None:
+    def test_multiple_inheritance_in_library(self) -> None:
         self.assertEqual(_library._inner.obj_3.__name__, "obj_3")
         self.assertEqual(_library._inner.obj_3.__type__, complex)
 
-    def test_assigned_name_in_a_method_of_the_child_class(self) -> None:
+    def test_assignment_in_a_child_class_method_in_library(self) -> None:
         """ Test the stored name in a method of a class that inherit from
         `name.AutoName`.
         """
@@ -180,20 +180,20 @@ class LibrarySuite(unittest.TestCase):
                          _library._inner.g))
         self.assertEqual(expected, "(e, f, g)")
 
-    def test_assigned_name_in_a_namespace(self) -> None:
+    def test_assigned_name_in_a_namespace_in_library(self) -> None:
         self.assertEqual(_library._inner.Namespace.attr.__name__, "attr")
 
-    def test_single_assignment_in_context_manager(self) -> None:
+    def test_single_assignment_in_context_manager_in_library(self) -> None:
         self.assertEqual(_library._inner.context_0.__name__, "context_0")
 
-    def test_multiple_assignment_in_context_manager(self) -> None:
+    def test_multiple_assignment_in_context_manager_in_library(self) -> None:
         self.assertEqual(_library._inner.context_1.__name__, "context_1")
         self.assertEqual(_library._inner.context_2.__name__, "context_2")
 
-    def test_single_var_in_for_loop(self) -> None:
+    def test_single_var_in_for_loop_in_library(self) -> None:
         self.assertEqual(_library._inner.h.__name__, "h")
 
-    def test_two_vars_in_for_loop(self) -> None:
+    def test_two_vars_in_for_loop_in_library(self) -> None:
         self.assertEqual(_library._inner.i.__name__, "i")
         self.assertEqual(_library._inner.j.__name__, "j")
 

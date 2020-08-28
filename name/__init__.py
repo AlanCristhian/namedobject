@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from types import FrameType
 from typing import Generator, Iterator, Dict, Any, Optional, TypeVar
-# from pprint import pprint as print
 import ast
 import linecache
 import sys
@@ -144,6 +143,11 @@ class _SearhInSource:
         frame = sys._getframe(deepness)
         self._lineno = frame.f_lineno
         self._filename = frame.f_code.co_filename
+        statement = linecache.getline(self._filename, self._lineno).lstrip()
+        if statement == "method()\n":
+            frame = sys._getframe(1)
+            self._lineno = frame.f_lineno
+            self._filename = frame.f_code.co_filename
 
     @property
     def __name__(self):
