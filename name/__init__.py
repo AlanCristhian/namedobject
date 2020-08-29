@@ -13,9 +13,10 @@ from typing import Generator, Iterator, Dict, Any, Optional, TypeVar
 import ast
 import linecache
 import sys
+import dis
 
 __all__ = ["AutoName"]
-__version__ = "0.6.0"
+__version__ = "0.6.2"
 
 
 _FrameGenerator = Generator[Dict[str, Any], None, None]
@@ -208,6 +209,53 @@ class _SearhInSource:
         self._name = name
 
     def __enter__(self: _S) -> _S:
+        return self
+
+    def __exit__(*args: Any) -> Optional[bool]:
+        pass
+
+
+_B = TypeVar("_B", bound="_SearchInBytecode")
+
+
+class _SearchInBytecode:
+    def __init__(self, count: int = 1):
+        assert count >= 0, "Expected positive 'int' number, got '%r'" % count
+        self.__name__ = "<nameless>"
+        if count == 0:
+            return
+        self._names = []
+        frame: Optional[FrameType] = sys._getframe(1)
+        max_deepness = len(type(self).__mro__)
+        for _ in range(max_deepness):
+            if not frame:
+                break
+            bytecode = dis.Bytecode(frame.f_code)
+            for instruction in bytecode:
+                if instruction.offset >= frame.f_lasti:
+                    if instruction.opname == "STORE_FAST":
+                        self._names.append(instruction.argval)
+                    if len(self._names) >= count:
+                        if instruction.opname != "STORE_FAST":
+                            break
+            if self._names:
+                self.__name__ = self._names[-1]
+                break
+            else:
+                frame = frame.f_back
+
+    # I define the '__iter__' method to give compatibility
+    # with the unpack sequence assignment syntax.
+    def __iter__(self: _B) -> Iterator[_B]:
+        for name in self._names:
+            obj = type(self)(0)
+            obj.__name__ = name
+            yield obj
+
+    def __set_name__(self, owner: Any, name: str) -> None:
+        self.__name__ = name
+
+    def __enter__(self: _B) -> _B:
         return self
 
     def __exit__(*args: Any) -> Optional[bool]:
