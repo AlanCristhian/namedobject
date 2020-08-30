@@ -549,7 +549,7 @@ class ModuleVariableSuite(unittest.TestCase):
         self.assertEqual(_module.j.__name__, "j")
 
 
-# Global variables for GlobasVariableSuite
+# Global variables for GlobalVariableSuite
 # ========================================
 
 
@@ -616,7 +616,7 @@ for gq, gr in [name.AutoName(2)]:
     pass
 
 
-class GloblasVariableSuite(unittest.TestCase):
+class GlobalVariableSuite(unittest.TestCase):
     def test_single_assignment(self) -> None:
         global ga
         self.assertEqual(ga.__name__, "ga")
