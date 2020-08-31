@@ -14,12 +14,12 @@ obj_1 = Class()
 a = b = name.AutoName()
 
 
-c, d = name.AutoName(2)
+c, d = name.AutoName()
 
 
 class SubClass(name.AutoName):
-    def __init__(self, count: int = 1) -> None:
-        super().__init__(count)
+    def __init__(self) -> None:
+        super().__init__()
 
 
 obj_2 = SubClass()
@@ -31,23 +31,23 @@ class Numeric:
 
 
 class Symbol(Numeric, name.AutoName):
-    def __init__(self, type: object, count: int = 1) -> None:
+    def __init__(self, type: object) -> None:
         Numeric.__init__(self, type)
-        name.AutoName.__init__(self, count)
+        name.AutoName.__init__(self)
 
 
 obj_3 = Symbol(complex)
 
 
 class Atom(name.AutoName):
-    def __init__(self, count: int = 1) -> None:
-        super().__init__(count)
+    def __init__(self) -> None:
+        super().__init__()
 
     def __repr__(self) -> str:
         return self.__name__
 
 
-e, f, g = Atom(3)
+e, f, g = Atom()
 
 
 class Namespace:
@@ -58,7 +58,7 @@ with name.AutoName() as context_0:
     pass
 
 
-with name.AutoName(2) as (context_1, context_2):
+with name.AutoName() as (context_1, context_2):
     pass
 
 
@@ -66,5 +66,5 @@ for h in [name.AutoName()]:
     pass
 
 
-for i, j in [name.AutoName(2)]:
+for i, j in [name.AutoName()]:
     pass

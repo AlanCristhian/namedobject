@@ -27,32 +27,44 @@ Tutorial
 --------
 
 `name` has only one class: `AutoName`. It creates an object with the
-`__name__` attribute that stores the name. E.g: ::
+`__name__` attribute that stores the name of such object. E.g: ::
 
   >>> import name
   >>> a = name.AutoName()
   >>> a.__name__
   'a'
 
-It can make multiple variables using the unpack sequence syntax. To do that
-you must pass the amount of object that you want as argument.::
+It can make multiple variables using the unpack sequence syntax: ::
 
   >>> import name
-  >>> a, b, c = name.AutoName(3)
-  >>> a.__name__
-  'a'
-  >>> b.__name__
-  'b'
-  >>> c.__name__
-  'c'
+  >>> x, y = name.AutoName()
+  >>> x.__name__
+  'x'
+  >>> y.__name__
+  'y'
 
-To make your own subclass that inherit from `name.AutoName`, you must chall
-the `__init__` method. ::
+`AutoName` can create as many variables as you want with the iterable
+unpacking syntax. It will always know how many variables to create and what
+name to assign each one.
+
+  >>> import name
+  >>> a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s = name.AutoName()
+  >>> k.__name__
+  'k'
+
+It works with the *for loop*:
+
+  >>> for x, y, z in [name.AutoName()]:
+  ...     (x.__name__, y.__name__, z.__name__)
+  ...
+  ('x', 'y', 'z')
+
+You can make your own subclass that inherit from `name.AutoName`. ::
 
   >>> import name
   >>> class Number(name.AutoName):
-  ...     def __init__(self, value, count=1):
-  ...         super().__init__(count)
+  ...     def __init__(self, value):
+  ...         super().__init__()
   ...         self.value = value
   ...
   >>> a = Number(1)
@@ -69,9 +81,9 @@ Also works with multiple inheritance. ::
   ...         self.type = type
   ...
   >>> class Symbol(Numeric, name.AutoName):
-  ...     def __init__(self, type, count=1):
+  ...     def __init__(self, type):
   ...         Numeric.__init__(self, type)
-  ...         name.AutoName.__init__(self, count)
+  ...         name.AutoName.__init__(self)
   ...
   >>> c = Symbol(complex)
   >>> c.__name__
@@ -79,7 +91,7 @@ Also works with multiple inheritance. ::
   >>> c.type
   <class 'complex'>
 
-**Warning:** See how both `Numeric` and `name.AutoName` have been initialized.
+**Note:** See how both `Numeric` and `name.AutoName` have been initialized.
 
 `AutoName` is also a *context manager* that you can use in a
 `with` statement. ::
@@ -89,35 +101,30 @@ Also works with multiple inheritance. ::
   ...     obj.__name__
   ...
   'obj'
-  >>> with name.AutoName(3) as (x, y, z):
+  >>> with name.AutoName() as (x, y, z):
   ...     (x.__name__, y.__name__, z.__name__)
   ...
   ('x', 'y', 'z')
   >>>
 
+------------
+How it works
+------------
+
+`AutoName` searches the name of the object in the bytecode of the frame where
+the object was created. If it can't find, searches it in the upper frame an so
+until the object name is found. I it can't find a name, then the default
+`'<nameless>'` value are set.
+
 -------
 Caveats
 -------
-
-How it works
-============
-
-If the object is in `__main__`, `AutoName` searches the name of the object in
-the frame where the object was created. If it can't find, searches it in the
-upper frame an so until the object name is found. I it can't find a name, then
-the default `<nameless>` value are set.
-
-If the object is in a module, just look for its name in the global namespace of
-such module.
-
-The name will be searched only if you look up the `.__name__` property, not at
-the instantiation time. The name is cached once has been found.
 
 Multiple assignment syntax
 ==========================
 
 `AutoName` stores the last name in the expression in the same way that
-`__set__name__` does. ::
+`__set_name__` does. ::
 
   >>> import name
   >>> a = b = name.AutoName()
@@ -127,39 +134,6 @@ Multiple assignment syntax
   'b'
 
 `See the \_\_set_name\_\_ documentation<https://docs.python.org/3/reference/datamodel.html?highlight=__get__#object.__set_name__>`
-
-Custom attribute name to store the object name
-==============================================
-
-If you make a subclass of `AutoName`, you can not access to the
-`__name__` property from the `__init__` method. ::
-
-  >>> import name
-  >>> class Number(name.AutoName):
-  ...     def __init__(self, count=0):
-  ...         super().__init__(count)
-  ...         self.name = self.__name__
-  ...
-  >>> n = Number()
-  >>> n.name
-  'self'
-  >>> n.__name__
-  'self'
-
-As you can see, the response is wrong. That is because `__name__` is a
-method. They can find the name of the object after the object was created.
-
-**To solve that** make a *getter* method: ::
-
-  >>> import name
-  >>> class Number(name.AutoName):
-  ...     @property
-  ...     def name(self):
-  ...         return self.__name__
-  ...
-  >>> n = Number()
-  >>> n.name
-  'n'
 
 AutoName instance as attribute of an object
 ===========================================

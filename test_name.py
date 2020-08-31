@@ -22,19 +22,14 @@ class LocalVariableSuite(unittest.TestCase):
         self.assertEqual(c.__name__, "c")
 
     def test_unpacking(self) -> None:
-        x, y = name.AutoName(2)
+        x, y = name.AutoName()
         self.assertEqual(x.__name__, "x")
         self.assertEqual(y.__name__, "y")
-
-    def test_count_sign(self) -> None:
-        description = "Expected positive 'int' number, got '-2'"
-        with self.assertRaisesRegex(AssertionError, description):
-            x, y = name.AutoName(-2)
 
     def test_subclass(self) -> None:
         class SubClass(name.AutoName):
             def __init__(self, count: int = 1) -> None:
-                super().__init__(count)
+                super().__init__()
         obj = SubClass()
         self.assertEqual(obj.__name__, "obj")
 
@@ -44,9 +39,9 @@ class LocalVariableSuite(unittest.TestCase):
                 self.__type__ = type
 
         class Symbol(Numeric, name.AutoName):
-            def __init__(self, type: object, count: int = 1) -> None:
+            def __init__(self, type: object) -> None:
                 Numeric.__init__(self, type)
-                name.AutoName.__init__(self, count)
+                name.AutoName.__init__(self)
 
         x = Symbol(complex)
         self.assertEqual(x.__name__, "x")
@@ -57,13 +52,13 @@ class LocalVariableSuite(unittest.TestCase):
         `name.AutoName`.
         """
         class Atom(name.AutoName):
-            def __init__(self, count: int = 1) -> None:
-                super().__init__(count)
+            def __init__(self) -> None:
+                super().__init__()
 
             def __repr__(self) -> str:
                 return self.__name__
 
-        a, b, c = Atom(3)
+        a, b, c = Atom()
         self.assertEqual(repr((a, b, c)), "(a, b, c)")
 
     def test_assigned_name_in_a_namespace(self) -> None:
@@ -90,7 +85,7 @@ class LocalVariableSuite(unittest.TestCase):
             self.assertEqual(context_obj.__name__, "context_obj")
 
     def test_multiple_assignment_in_context_manager(self) -> None:
-        with name.AutoName(2) as (context_ob_1, context_ob_2):
+        with name.AutoName() as (context_ob_1, context_ob_2):
             self.assertEqual(context_ob_1.__name__, "context_ob_1")
             self.assertEqual(context_ob_2.__name__, "context_ob_2")
 
@@ -100,21 +95,21 @@ class LocalVariableSuite(unittest.TestCase):
         self.assertEqual(x.__name__, "x")
 
     def test_two_vars_in_for_loop(self) -> None:
-        for x, y in [name.AutoName(2)]:
+        for x, y in [name.AutoName()]:
             pass
         self.assertEqual(x.__name__, "x")
         self.assertEqual(y.__name__, "y")
 
-    def test_default_name(self):
+    def test_default_name(self) -> None:
         self.assertEqual(name.AutoName().__name__, "<nameless>")
 
-    def test_inside_function(self):
+    def test_inside_function(self) -> None:
         def function():
             inner = name.AutoName()
             return inner
         self.assertEqual(function().__name__, "inner")
 
-    def test_extended_arg_opcode(self):
+    def test_extended_arg_opcode(self) -> None:
         _000 = name.AutoName()
         _001 = name.AutoName()
         _002 = name.AutoName()
@@ -374,6 +369,18 @@ class LocalVariableSuite(unittest.TestCase):
         _256 = name.AutoName()
         self.assertEqual(_256.__name__, "_256")
 
+    def test_warlust(self) -> None:
+        (x := name.AutoName())
+        self.assertEqual(x.__name__, "x")
+
+    def test_custom_attribute(self) -> None:
+        class Number(name.AutoName):
+            def __init__(self) -> None:
+                super().__init__()
+                self.name = self.__name__
+        n = Number()
+        self.assertEqual(n.name, "n")
+
 
 class CellVariableSuite(unittest.TestCase):
     def test_single_assignment(self) -> None:
@@ -401,7 +408,7 @@ class CellVariableSuite(unittest.TestCase):
         self.assertEqual(z.__name__, "c")
 
     def test_unpacking(self) -> None:
-        a, b, c = name.AutoName(3)
+        a, b, c = name.AutoName()
 
         def inner():
             return a, b, c
@@ -413,8 +420,8 @@ class CellVariableSuite(unittest.TestCase):
 
     def test_subclass(self) -> None:
         class SubClass(name.AutoName):
-            def __init__(self, count: int = 1) -> None:
-                super().__init__(count)
+            def __init__(self) -> None:
+                super().__init__()
 
         a = SubClass()
 
@@ -430,9 +437,9 @@ class CellVariableSuite(unittest.TestCase):
                 self.__type__ = type
 
         class Symbol(Numeric, name.AutoName):
-            def __init__(self, type: object, count: int = 1) -> None:
+            def __init__(self, type: object) -> None:
                 Numeric.__init__(self, type)
-                name.AutoName.__init__(self, count)
+                name.AutoName.__init__(self)
 
         x = Symbol(complex)
 
@@ -445,13 +452,13 @@ class CellVariableSuite(unittest.TestCase):
 
     def test_assignment_in_a_child_class_method(self) -> None:
         class Atom(name.AutoName):
-            def __init__(self, count: int = 1) -> None:
-                super().__init__(count)
+            def __init__(self) -> None:
+                super().__init__()
 
             def __repr__(self) -> str:
                 return self.__name__
 
-        a, b, c = Atom(3)
+        a, b, c = Atom()
 
         def inner():
             return a, b, c
@@ -481,7 +488,7 @@ class CellVariableSuite(unittest.TestCase):
         self.assertEqual(obj.__name__, "context_obj")
 
     def test_multiple_assignment_in_context_manager(self) -> None:
-        with name.AutoName(3) as (a, b, c):
+        with name.AutoName() as (a, b, c):
             def inner():
                 return a, b, c
         x, y, z = inner()
@@ -497,7 +504,7 @@ class CellVariableSuite(unittest.TestCase):
         self.assertEqual(a.__name__, "x")
 
     def test_two_vars_in_for_loop(self) -> None:
-        for x, y in [name.AutoName(2)]:
+        for x, y in [name.AutoName()]:
             def inner():
                 return x, y
         a, b = inner()
@@ -555,12 +562,12 @@ class ModuleVariableSuite(unittest.TestCase):
 
 ga = name.AutoName()
 gb = gc = gd = name.AutoName()
-ge, gf = name.AutoName(2)
+ge, gf = name.AutoName()
 
 
 class GSubclass(name.AutoName):
-    def __init__(self, count: int = 1) -> None:
-        super().__init__(count)
+    def __init__(self) -> None:
+        super().__init__()
 
 
 gg = GSubclass()
@@ -572,23 +579,23 @@ class GNumeric:
 
 
 class GSymbol(GNumeric, name.AutoName):
-    def __init__(self, type: object, count: int = 1) -> None:
+    def __init__(self, type: object) -> None:
         GNumeric.__init__(self, type)
-        name.AutoName.__init__(self, count)
+        name.AutoName.__init__(self)
 
 
 gh = GSymbol(complex)
 
 
 class GAtom(name.AutoName):
-    def __init__(self, count: int = 1) -> None:
-        super().__init__(count)
+    def __init__(self) -> None:
+        super().__init__()
 
     def __repr__(self) -> str:
         return self.__name__
 
 
-gi, gj, gk = GAtom(3)
+gi, gj, gk = GAtom()
 
 
 class GNumber(name.AutoName):
@@ -604,7 +611,7 @@ with name.AutoName() as gm:
     pass
 
 
-with name.AutoName(2) as (gn, go):
+with name.AutoName() as (gn, go):
     pass
 
 
@@ -612,7 +619,7 @@ for gp in [name.AutoName()]:
     pass
 
 
-for gq, gr in [name.AutoName(2)]:
+for gq, gr in [name.AutoName()]:
     pass
 
 
