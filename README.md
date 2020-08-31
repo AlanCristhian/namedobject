@@ -4,9 +4,11 @@ A library with a base class that stores the assigned name of an object.
 
 ```pycon
 >>> import name
->>> a = name.AutoName()
->>> a.__name__
-'a'
+>>> x, y = name.AutoName()
+>>> x.__name__
+'x'
+>>> y.__name__
+'y'
 ```
 
 ## Requirements
