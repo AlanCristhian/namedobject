@@ -16,7 +16,7 @@ import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.8.0"
+__version__ = "0.8.1"
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -34,9 +34,8 @@ class AutoName:
     def __init__(self) -> None:
         self.__name__ = "<nameless>"
         self._names: List[str] = []
-        max_deepness = len(type(self).__mro__)
+        max_deepness = len(self.__class__.__mro__)
         frame: Optional[FrameType] = sys._getframe(1)
-        extended_arg = bytearray()
         for _ in range(max_deepness):
             if not frame:
                 break
@@ -49,18 +48,17 @@ class AutoName:
             bytecode = frame.f_code.co_code
             start = frame.f_lasti + 2
             stop = len(bytecode)
+            extended_arg = 0
             for i in range(start, stop, 2):
                 instruction = bytecode[i]
                 if instruction == 92:  # UNPACK_SEQUENCE
                     continue
                 elif instruction == 144:  # EXTENDED_ARG
-                    extended_arg.append(bytecode[i + 1])
+                    extended_arg |= bytecode[i + 1] << 8
                 elif instruction in store_opcode:
-                    extended_arg.append(bytecode[i + 1])
-                    index = int.from_bytes(extended_arg, "big")
+                    index = extended_arg | bytecode[i + 1]
                     name = store_opcode[instruction][index]
                     self._names.append(name)
-                    extended_arg.clear()
                 if self._names:
                     if instruction not in _STORE_INSTRUCTIONS:
                         break
@@ -68,15 +66,13 @@ class AutoName:
                 self.__name__ = self._names[-1]
                 break
             else:
-                if extended_arg:
-                    extended_arg.clear()
                 frame = frame.f_back
 
     # I define the '__iter__' method to give compatibility
     # with the iterable unpacking syntax.
     def __iter__(self: _T) -> Iterator[_T]:
         for name in self._names:
-            obj = type(self)()
+            obj = self.__class__()
             obj.__name__ = name
             yield obj
 
