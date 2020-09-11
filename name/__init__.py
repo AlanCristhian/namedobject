@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 from types import FrameType
-from typing import Iterator, Any, Optional, TypeVar, List
+from typing import Iterator, Any, Optional, TypeVar, List, Dict, Tuple
 import sys
 
 
@@ -31,13 +31,19 @@ _STORE_INSTRUCTIONS = {
 
 
 class AutoName:
-    def __new__(cls, *args, **kwds):
-        obj = super().__new__(cls)
-        obj._autoname_args: tuple = args
-        obj._autoname_kwds: dict = kwds
+    def __new__(
+        cls,
+        *args: Tuple[Any, ...],
+        **kwds: Dict[str, Any]
+    ) -> "AutoName":
+        obj: "AutoName" = super().__new__(cls)
+        obj._autoname_args: Tuple[Any, ...] = args  # type: ignore[misc]
+        obj._autoname_kwds: Dict[str, Any] = kwds  # type: ignore[misc]
         return obj
 
     def __init__(self) -> None:
+        self._autoname_args: Tuple[Any, ...]
+        self._autoname_kwds: Dict[str, Any]
         self.__name__ = "<nameless>"
         self._names: List[str] = []
         max_deepness = len(self.__class__.__mro__)
