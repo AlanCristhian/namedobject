@@ -16,7 +16,7 @@ import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.8.1"
+__version__ = "0.8.2"
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -31,6 +31,12 @@ _STORE_INSTRUCTIONS = {
 
 
 class AutoName:
+    def __new__(cls, *args, **kwds):
+        obj = super().__new__(cls)
+        obj._autoname_args: tuple = args
+        obj._autoname_kwds: dict = kwds
+        return obj
+
     def __init__(self) -> None:
         self.__name__ = "<nameless>"
         self._names: List[str] = []
@@ -72,7 +78,10 @@ class AutoName:
     # with the iterable unpacking syntax.
     def __iter__(self: _T) -> Iterator[_T]:
         for name in self._names:
-            obj = self.__class__()
+            obj = self.__class__(  # type: ignore[call-arg]
+                *self._autoname_args,
+                **self._autoname_kwds
+            )
             obj.__name__ = name
             yield obj
 

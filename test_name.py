@@ -28,7 +28,7 @@ class LocalVariableSuite(unittest.TestCase):
 
     def test_subclass(self) -> None:
         class SubClass(name.AutoName):
-            def __init__(self, count: int = 1) -> None:
+            def __init__(self) -> None:
                 super().__init__()
         obj = SubClass()
         self.assertEqual(obj.__name__, "obj")
@@ -380,6 +380,34 @@ class LocalVariableSuite(unittest.TestCase):
                 self.name = self.__name__
         n = Number()
         self.assertEqual(n.name, "n")
+
+    def test_name_collision(self):
+        "Test that the name is searched in the correct namespace"
+        class Subclass(name.AutoName):
+            def __init__(self):
+                interior = name.AutoName()
+                super().__init__()
+                self.interior = interior.__name__
+
+        def namespace():
+            exterior = Subclass()
+            self.assertEqual(exterior.__name__, "exterior")
+            self.assertEqual(exterior.interior, "interior")
+        namespace()
+
+    def test_subclass_arguments(self):
+        class Numeric:
+            def __init__(self, type: object) -> None:
+                self.__type__ = type
+
+        class Variable(name.AutoName, Numeric):
+            def __init__(self, type: object) -> None:
+                name.AutoName.__init__(self)
+                Numeric.__init__(self, type)
+
+        foo, var = Variable(int)
+        self.assertEqual(foo.__name__, "foo")
+        self.assertEqual(var.__name__, "var")
 
 
 class CellVariableSuite(unittest.TestCase):
