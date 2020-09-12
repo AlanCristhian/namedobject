@@ -30,6 +30,22 @@ _STORE_INSTRUCTIONS = {
 }
 
 
+def _get_frame(type_: type) -> Optional[FrameType]:
+    deepness = len({
+        t.__init__  # type: ignore[misc]
+        for t in type_.__mro__
+        if AutoName in t.__mro__
+    })
+    try:
+        frame = sys._getframe(deepness + 1)
+    except ValueError as error:
+        if error.args == ('call stack is not deep enough',):
+            frame = sys._getframe(deepness)
+        else:
+            raise error
+    return frame
+
+
 class AutoName:
     def __new__(
         cls,
@@ -46,39 +62,36 @@ class AutoName:
         self._autoname_kwds: Dict[str, Any]
         self.__name__ = "<nameless>"
         self._names: List[str] = []
-        max_deepness = len(self.__class__.__mro__)
-        frame: Optional[FrameType] = sys._getframe(1)
-        for _ in range(max_deepness):
-            if not frame:
-                break
-            store_opcode = {
-                90: frame.f_code.co_names,      # STORE_NAME
-                97: frame.f_code.co_names,      # STORE_GLOBAL
-                125: frame.f_code.co_varnames,  # STORE_FAST
-                137: frame.f_code.co_cellvars,  # STORE_DEREF
-            }
-            bytecode = frame.f_code.co_code
-            start = frame.f_lasti + 2
-            stop = len(bytecode)
-            extended_arg = 0
-            for i in range(start, stop, 2):
-                instruction = bytecode[i]
-                if instruction == 92:  # UNPACK_SEQUENCE
-                    continue
-                elif instruction == 144:  # EXTENDED_ARG
-                    extended_arg |= bytecode[i + 1] << 8
-                elif instruction in store_opcode:
-                    index = extended_arg | bytecode[i + 1]
-                    name = store_opcode[instruction][index]
-                    self._names.append(name)
-                if self._names:
-                    if instruction not in _STORE_INSTRUCTIONS:
-                        break
+        frame = _get_frame(self.__class__)
+        if not frame:
+            return
+        store_opcode = {
+            90: frame.f_code.co_names,      # STORE_NAME
+            97: frame.f_code.co_names,      # STORE_GLOBAL
+            125: frame.f_code.co_varnames,  # STORE_FAST
+            137: frame.f_code.co_cellvars,  # STORE_DEREF
+        }
+        bytecode = frame.f_code.co_code
+        start = frame.f_lasti + 2
+        stop = len(bytecode)
+        extended_arg = 0
+        for i in range(start, stop, 2):
+            instruction = bytecode[i]
+            if instruction == 92:  # UNPACK_SEQUENCE
+                continue
+            elif instruction == 144:  # EXTENDED_ARG
+                extended_arg |= bytecode[i + 1] << 8
+            elif instruction in store_opcode:
+                index = extended_arg | bytecode[i + 1]
+                name = store_opcode[instruction][index]
+                self._names.append(name)
             if self._names:
-                self.__name__ = self._names[-1]
-                break
-            else:
-                frame = frame.f_back
+                if instruction not in _STORE_INSTRUCTIONS:
+                    break
+        if self._names:
+            self.__name__ = self._names[-1]
+        else:
+            frame = frame.f_back
 
     # I define the '__iter__' method to give compatibility
     # with the iterable unpacking syntax.

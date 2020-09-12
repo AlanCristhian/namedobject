@@ -704,4 +704,31 @@ class GlobalVariableSuite(unittest.TestCase):
 
 
 if __name__ == '__main__':
+
+    # A weird bug with global variables can only be tested here
+    class TypedObj:
+        def __init__(self, type: object) -> None:
+            self.__type__ = type
+
+    class NamedObj(TypedObj, name.AutoName):
+        def __init__(self, type: object) -> None:
+            TypedObj.__init__(self, type)
+            name.AutoName.__init__(self)
+
+    class ReprObj(name.AutoName):
+        def __repr__(self) -> str:
+            return self.__name__
+
+    class Variable(ReprObj, NamedObj):
+        def __init__(self, type: object) -> None:
+            ReprObj.__init__(self)
+            NamedObj.__init__(self, type)
+
+    foo, var = Variable(int)
+
+    assert foo.__name__ == "foo"
+    assert var.__name__ == "var"
+    assert foo.__type__ == int
+    assert var.__type__ == int
+
     unittest.main()
