@@ -36,7 +36,7 @@ Tutorial
   >>> a.__name__
   'a'
 
-It can make multiple variables using the unpack sequence syntax: ::
+It can make multiple variables with iterable unpacking syntax. ::
 
   >>> import name
   >>> x, y = name.AutoName()
@@ -45,7 +45,7 @@ It can make multiple variables using the unpack sequence syntax: ::
   >>> y.__name__
   'y'
 
-`AutoName` can create as many variables as you want with the iterable
+`AutoName` can create as many variables as you want with iterable
 unpacking syntax. It will always know how many variables to create and what
 name to assign each one.
 
@@ -54,7 +54,7 @@ name to assign each one.
   >>> k.__name__
   'k'
 
-It works with the *for loop*:
+It works with *for loops*:
 
   >>> for x, y, z in [name.AutoName()]:
   ...     (x.__name__, y.__name__, z.__name__)
@@ -114,8 +114,7 @@ How it works
 ------------
 
 `AutoName` searches the name of the object in the bytecode of the frame where
-the object was created. If it can't find, searches it in the upper frame an so
-until the object name is found. I it can't find a name, then the default
+the object was created. If it can't find a name, then the default
 `'<nameless>'` value are set.
 
 -------
@@ -131,33 +130,8 @@ Multiple assignment syntax
   >>> import name
   >>> a = b = name.AutoName()
   >>> a.__name__
-  'a'
+  'b'
   >>> b.__name__
   'b'
 
 `See the \_\_set_name\_\_ documentation<https://docs.python.org/3/reference/datamodel.html?highlight=__get__#object.__set_name__>`
-
-AutoName instance as attribute of an object
-===========================================
-
-You can't create an instance of `AutoName` and store it in an object
-attibute: ::
-
-  >>> import name
-  >>> class Object:
-  ...     def __init__(self):
-  ...         self.attribute = name.AutoName()
-  ...
-  >>> Object().attribute.__name__
- '<nameless>'
-
-**To do that** the attribute should be an *class attribute*: ::
-
-  >>> import name
-  >>> class Object:
-  ...     attribute = name.AutoName()
-  ...     def __init__(self):
-  ...         ...
-  ...
-  >>> Object().attribute.__name__
-  'attribute'
