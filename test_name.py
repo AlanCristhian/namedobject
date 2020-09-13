@@ -409,6 +409,13 @@ class LocalVariableSuite(unittest.TestCase):
         self.assertEqual(foo.__name__, "foo")
         self.assertEqual(var.__name__, "var")
 
+    def test_autoname_instance_as_object_attribute(self) -> None:
+        class Object:
+            def __init__(self):
+                self.attribute = name.AutoName()
+        obtained = Object().attribute.__name__
+        self.assertEqual(obtained, "attribute")
+
 
 class CellVariableSuite(unittest.TestCase):
     def test_single_assignment(self) -> None:

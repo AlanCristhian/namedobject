@@ -1,7 +1,6 @@
 """A library with a base class that stores the assigned name of an object.
 
->>> import name
->>> x, y = name.AutoName()
+>>> x, y = AutoName()
 >>> x.__name__
 'x'
 >>> y.__name__
@@ -27,6 +26,7 @@ _T = TypeVar("_T", bound="AutoName")
 _ALLOWED_INSTRUCTIONS = {
     4,    # DUP_TOP
     90,   # STORE_NAME
+    95,   # STORE_ATTR
     97,   # STORE_GLOBAL
     125,  # STORE_FAST
     137,  # STORE_DEREF
@@ -38,7 +38,7 @@ _ALLOWED_INSTRUCTIONS = {
 # to search the name of such object there.
 def _get_frame(type_: type) -> Optional[FrameType]:
 
-    # The call stack deepnes increases each time that the user
+    # The call stack deepness increases each time that the user
     # make a subclass of AutoName and override the __init__
     # method. So, it count how many times __init__ was overrided.
     deepness = len({
@@ -48,7 +48,7 @@ def _get_frame(type_: type) -> Optional[FrameType]:
     })
     try:
 
-        # Deepnes is plus one because the current funcion add a frame
+        # Deepness is plus one because the current funcion add a frame
         return sys._getframe(deepness + 1)
     except ValueError as error:
         if error.args == ('call stack is not deep enough',):
@@ -62,6 +62,45 @@ def _get_frame(type_: type) -> Optional[FrameType]:
 
 
 class AutoName:
+    """Stores the assigned name of an object.
+
+    Single assignment:
+    >>> obj = AutoName()
+    >>> obj.__name__
+    'obj'
+
+    Iterable unpacking syntax:
+    >>> a, b = AutoName()
+    >>> a.__name__
+    'a'
+    >>> b.__name__
+    'b'
+
+    For loops:
+    >>> for c, d in [AutoName()]:
+    ...     (c.__name__, d.__name__)
+    ...
+    ('c', 'd')
+
+    Subclassing:
+    >>> class Number(AutoName):
+    ...     def __init__(self, value):
+    ...         super().__init__()
+    ...         self.value = value
+    ...
+    >>> one = Number(1)
+    >>> one.__name__
+    'one'
+    >>> one.value
+    1
+
+    Context manager:
+    >>> with AutoName() as (e, f):
+    ...     (e.__name__, f.__name__)
+    ...
+    ('e', 'f')
+    """
+
     def __init__(self) -> None:
         self.__name__ = "<nameless>"
 
@@ -74,6 +113,7 @@ class AutoName:
                 return
             STORED_NAMES = {
                 90: frame.f_code.co_names,      # STORE_NAME
+                95: frame.f_code.co_names,      # STORE_ATTR
                 97: frame.f_code.co_names,      # STORE_GLOBAL
                 125: frame.f_code.co_varnames,  # STORE_FAST
                 137: frame.f_code.co_cellvars,  # STORE_DEREF
@@ -133,3 +173,8 @@ class AutoName:
 
     def __exit__(*args: Any) -> Optional[bool]:
         pass
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
