@@ -16,7 +16,7 @@ import copy
 
 
 __all__ = ["AutoName"]
-__version__ = "0.8.5"
+__version__ = "0.8.6"
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -36,16 +36,7 @@ _ALLOWED_INSTRUCTIONS = {
 
 # Get the frame where the object was created
 # to search the name of such object there.
-def _get_frame(type_: type) -> Optional[FrameType]:
-
-    # The call stack deepness increases each time that the user
-    # make a subclass of AutoName and override the __init__
-    # method. So, it count how many times __init__ was overrided.
-    deepness = len({
-        t.__init__  # type: ignore[misc]
-        for t in type_.__mro__
-        if AutoName in t.__mro__
-    })
+def _get_frame(deepness: int) -> Optional[FrameType]:
     try:
 
         # Deepness is plus one because the current funcion add a frame
@@ -101,13 +92,15 @@ class AutoName:
     ('e', 'f')
     """
 
+    _deepness: int = 1
+
     def __init__(self) -> None:
         self.__name__ = "<nameless>"
 
         # Python can create many names with iterable unpacking syntax and
         # multiple assignment syntax. That is why it store them all.
         self._names: List[str] = []
-        frame = _get_frame(self.__class__)
+        frame = _get_frame(self._deepness)
         try:
             if not frame:
                 return
@@ -173,6 +166,18 @@ class AutoName:
 
     def __exit__(*args: Any) -> Optional[bool]:
         pass
+
+    def __init_subclass__(cls) -> None:
+
+        # The call stack deepness increases each time that the user
+        # make a subclass of AutoName and override the __init__
+        # method. So, it count how many times __init__ was overrided.
+        cls._deepness = len({
+            t.__init__  # type: ignore[misc]
+            for t in cls.__mro__
+            if AutoName in t.__mro__
+        })
+        super().__init_subclass__()
 
 
 if __name__ == "__main__":
