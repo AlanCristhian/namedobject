@@ -7,8 +7,6 @@
 'y'
 """
 
-from __future__ import annotations
-
 from types import FrameType
 from typing import Iterator, Any, Optional, TypeVar, List
 import sys
@@ -16,7 +14,7 @@ import copy
 
 
 __all__ = ["AutoName"]
-__version__ = "0.8.6"
+__version__ = "0.8.7"
 
 
 _T = TypeVar("_T", bound="AutoName")
