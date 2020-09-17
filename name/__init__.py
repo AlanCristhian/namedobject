@@ -14,7 +14,7 @@ import copy
 
 
 __all__ = ["AutoName"]
-__version__ = "0.8.7"
+__version__ = "0.9.0"
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -97,7 +97,7 @@ class AutoName:
 
         # Python can create many names with iterable unpacking syntax and
         # multiple assignment syntax. That is why it store them all.
-        self._names: List[str] = []
+        self.names: List[str] = []
         frame = _get_frame(self._deepness)
         try:
             if not frame:
@@ -133,25 +133,25 @@ class AutoName:
                 elif instruction in STORED_NAMES:
                     index = extended_arg | bytecode[i + 1]
                     name = STORED_NAMES[instruction][index]
-                    self._names.append(name)
-                if self._names:
+                    self.names.append(name)
+                if self.names:
                     if instruction not in _ALLOWED_INSTRUCTIONS:
                         break
-            if self._names:
+            if self.names:
 
                 # In both cases where the user want to use single assignment
                 # or multiple assigments, the correct name is the last one.
                 #
                 # Why the last, and not the first? Because that is how
                 # __set_name__ behaves in the same situation.
-                self.__name__ = self._names[-1]
+                self.__name__ = self.names[-1]
         finally:
             del frame
 
     # The '__iter__' method is defined to give compatibility
     # with iterable unpacking syntax.
     def __iter__(self: _T) -> Iterator[_T]:
-        for name in self._names:
+        for name in self.names:
             instance = copy.copy(self)
             instance.__name__ = name
             yield instance
