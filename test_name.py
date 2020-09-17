@@ -1,5 +1,4 @@
-from __future__ import annotations
-
+import sys
 import unittest
 
 import name
@@ -369,9 +368,14 @@ class LocalVariableSuite(unittest.TestCase):
         _256 = name.AutoName()
         self.assertEqual(_256.__name__, "_256")
 
+    @unittest.skipIf(sys.version_info < (3, 8), "No warlust operator.")
     def test_warlust(self) -> None:
-        (x := name.AutoName())
-        self.assertEqual(x.__name__, "x")
+        expression = "\n".join((
+            '(x := name.AutoName())',
+            'self.assertEqual(x.__name__, "x")',
+        ))
+        exec(expression)
+
 
     def test_custom_attribute(self) -> None:
         class Number(name.AutoName):
