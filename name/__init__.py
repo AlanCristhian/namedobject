@@ -14,7 +14,7 @@ import copy
 
 
 __all__ = ["AutoName"]
-__version__ = "0.9.0"
+__version__ = "0.9.1"
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -91,9 +91,9 @@ class AutoName:
     """
 
     _deepness: int = 1
+    __name__ = "<nameless>"
 
     def __init__(self) -> None:
-        self.__name__ = "<nameless>"
 
         # Python can create many names with iterable unpacking syntax and
         # multiple assignment syntax. That is why it store them all.
