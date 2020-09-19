@@ -14,7 +14,7 @@ import copy
 
 
 __all__ = ["AutoName"]
-__version__ = "0.10.1"
+__version__ = "0.10.2"
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -191,9 +191,6 @@ class AutoName:
                 instance.__name__ = name
                 self._copies.append(instance)
                 yield instance
-
-    def __set_name__(self, owner: Any, name: str) -> None:
-        self.__name__ = name
 
     def __enter__(self: _T) -> _T:
         return self
