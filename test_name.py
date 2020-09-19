@@ -376,7 +376,6 @@ class LocalVariableSuite(unittest.TestCase):
         ))
         exec(expression)
 
-
     def test_custom_attribute(self) -> None:
         class Number(name.AutoName):
             def __init__(self) -> None:
@@ -712,6 +711,118 @@ class GlobalVariableSuite(unittest.TestCase):
         global gq, gr
         self.assertEqual(gq.__name__, "gq")
         self.assertEqual(gr.__name__, "gr")
+
+
+class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
+    def test_0(self) -> None:
+        #  6 DUP_TOP
+        #  8 STORE_FAST               1 (a)
+        # 10 STORE_FAST               2 (b)
+        a = b = name.AutoName()
+        self.assertEqual(a.__name__, "b")
+        self.assertEqual(b.__name__, "b")
+
+    def test_1(self) -> None:
+        #  6 UNPACK_SEQUENCE          2
+        #  8 STORE_FAST               1 (a)
+        # 10 STORE_FAST               2 (b)
+        a, b = name.AutoName()
+        self.assertEqual(a.__name__, "a")
+        self.assertEqual(b.__name__, "b")
+
+    def test_2(self) -> None:
+        #  6 DUP_TOP
+        #  8 STORE_FAST               1 (a)
+        # 10 UNPACK_SEQUENCE          2
+        # 12 STORE_FAST               2 (b)
+        # 14 STORE_FAST               3 (c)
+        a = b, c = name.AutoName()
+        self.assertEqual(a.__name__, "a")
+        self.assertEqual(b.__name__, "b")
+        self.assertEqual(c.__name__, "c")
+
+    def test_3(self) -> None:
+        #  6 DUP_TOP
+        #  8 UNPACK_SEQUENCE          2
+        # 10 STORE_FAST               1 (a)
+        # 12 STORE_FAST               2 (b)
+        # 14 STORE_FAST               3 (c)
+        a, b = c = name.AutoName()
+        self.assertEqual(a.__name__, "a")
+        self.assertEqual(b.__name__, "b")
+        self.assertEqual(c.__name__, "c")
+
+    def test_4(self) -> None:
+        #  6 DUP_TOP
+        #  8 STORE_FAST               1 (a)
+        # 10 DUP_TOP
+        # 12 STORE_FAST               2 (b)
+        # 14 UNPACK_SEQUENCE          2
+        # 16 STORE_FAST               3 (c)
+        # 18 STORE_FAST               4 (d)
+        a = b = c, d = name.AutoName()
+        self.assertEqual(a.__name__, "b")
+        self.assertEqual(b.__name__, "b")
+        self.assertEqual(c.__name__, "c")
+        self.assertEqual(d.__name__, "d")
+
+    def test_5(self) -> None:
+        """ multiple and unpacking
+              6 DUP_TOP
+              8 UNPACK_SEQUENCE          2
+             10 STORE_FAST               1 (a)
+             12 STORE_FAST               2 (b)
+             14 DUP_TOP
+             16 STORE_FAST               3 (c)
+             18 STORE_FAST               4 (d)
+        """
+        a, b = c = d = name.AutoName()
+        self.assertEqual(a.__name__, "a")
+        self.assertEqual(b.__name__, "b")
+        self.assertEqual(c.__name__, "d")
+        self.assertEqual(d.__name__, "d")
+
+    def test_6(self) -> None:
+        #  6 DUP_TOP
+        #  8 STORE_FAST               1 (a)
+        # 10 DUP_TOP
+        # 12 STORE_FAST               2 (b)
+        # 14 DUP_TOP
+        # 16 UNPACK_SEQUENCE          2
+        # 18 STORE_FAST               3 (c)
+        # 20 STORE_FAST               4 (d)
+        # 22 DUP_TOP
+        # 24 STORE_FAST               5 (e)
+        # 26 STORE_FAST               6 (f)
+        a = b = c, d = e = f = name.AutoName()
+        self.assertEqual(a.__name__, "f")
+        self.assertEqual(b.__name__, "f")
+        self.assertEqual(c.__name__, "c")
+        self.assertEqual(d.__name__, "d")
+        self.assertEqual(e.__name__, "f")
+        self.assertEqual(f.__name__, "f")
+
+    def test_7(self):
+        #  6 DUP_TOP
+        #  8 UNPACK_SEQUENCE          2
+        # 10 STORE_FAST               1 (a)
+        # 12 STORE_FAST               2 (b)
+        # 14 DUP_TOP
+        # 16 STORE_FAST               3 (c)
+        # 18 DUP_TOP
+        # 20 STORE_FAST               4 (d)
+        # 22 UNPACK_SEQUENCE          2
+        # 24 STORE_FAST               5 (e)
+        # 26 STORE_FAST               6 (f)
+        a, b = c = d = e, f = name.AutoName()
+        self.assertEqual(a.__name__, "e")
+        self.assertEqual(b.__name__, "f")
+        self.assertEqual(c.__name__, "d")
+        self.assertEqual(d.__name__, "d")
+        self.assertEqual(e.__name__, "e")
+        self.assertEqual(f.__name__, "f")
+        self.assertIs(a, e)
+        self.assertIs(b, f)
 
 
 if __name__ == '__main__':

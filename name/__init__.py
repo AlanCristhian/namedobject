@@ -14,7 +14,7 @@ import copy
 
 
 __all__ = ["AutoName"]
-__version__ = "0.9.1"
+__version__ = "0.10.0"
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -97,7 +97,10 @@ class AutoName:
 
         # Python can create many names with iterable unpacking syntax and
         # multiple assignment syntax. That is why it store them all.
-        self.names: List[str] = []
+        self._multiple_names: List[str] = []
+        self._iterable_names: List[List[str]] = []
+        self._copies: List[_T] = []  # type: ignore[valid-type]
+        self._slices: List[slice] = []
         frame = _get_frame(self._deepness)
         try:
             if not frame:
@@ -127,34 +130,67 @@ class AutoName:
             for i in range(start, stop, 2):
                 instruction = bytecode[i]
                 if instruction == 92:  # UNPACK_SEQUENCE
+
+                    # count is the amount of variables that want to unpack
+                    count = extended_arg | bytecode[i + 1]
+
+                    # Store slices because names that will
+                    # be used are not known at this point.
+                    begin = len(self._multiple_names)
+                    end = begin + count
+                    slice_ = slice(begin, end)
+                    self._slices.append(slice_)
+
                     continue
                 elif instruction == 144:  # EXTENDED_ARG
                     extended_arg |= bytecode[i + 1] << 8  # compute the index
                 elif instruction in STORED_NAMES:
                     index = extended_arg | bytecode[i + 1]
                     name = STORED_NAMES[instruction][index]
-                    self.names.append(name)
-                if self.names:
+                    self._multiple_names.append(name)
+                if self._multiple_names:
                     if instruction not in _ALLOWED_INSTRUCTIONS:
                         break
-            if self.names:
 
-                # In both cases where the user want to use single assignment
-                # or multiple assigments, the correct name is the last one.
-                #
-                # Why the last, and not the first? Because that is how
-                # __set_name__ behaves in the same situation.
-                self.__name__ = self.names[-1]
+            # Iterable unpacking syntax
+            if self._slices:
+                delta = 0
+                for slice_ in self._slices:
+                    begin = slice_.start - delta
+                    end = slice_.stop - delta
+
+                    # Store names that will be used in iterable unpacking
+                    names = self._multiple_names[begin:end]
+                    self._iterable_names.append(names)
+
+                    # Remove unneeded names that will be
+                    # used in single or multiple assignment
+                    del self._multiple_names[begin:end]
+
+                    delta = end - begin
+
+            # Multiple and single assignment syntax
+            if self._multiple_names:
+
+                # [NOTE 1]: The correct name is the last one because
+                # that is how __set_name__ behaves in the same situation.
+                self.__name__ = self._multiple_names[-1]
         finally:
             del frame
 
     # The '__iter__' method is defined to give compatibility
     # with iterable unpacking syntax.
     def __iter__(self: _T) -> Iterator[_T]:
-        for name in self.names:
-            instance = copy.copy(self)
-            instance.__name__ = name
-            yield instance
+        if self._copies:
+            for item in self._copies:
+                yield item
+        else:
+            slice_ = self._iterable_names[-1]  # See [NOTE 1]
+            for name in slice_:
+                instance = copy.copy(self)
+                instance.__name__ = name
+                self._copies.append(instance)
+                yield instance
 
     def __set_name__(self, owner: Any, name: str) -> None:
         self.__name__ = name
