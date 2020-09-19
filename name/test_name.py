@@ -2,7 +2,7 @@ import sys
 import unittest
 
 import name
-import _module
+from . import _module
 
 
 class LocalVariableSuite(unittest.TestCase):

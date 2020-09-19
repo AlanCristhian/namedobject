@@ -14,7 +14,7 @@ import copy
 
 
 __all__ = ["AutoName"]
-__version__ = "0.10.0"
+__version__ = "0.10.1"
 
 
 _T = TypeVar("_T", bound="AutoName")
