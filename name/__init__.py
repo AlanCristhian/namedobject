@@ -14,7 +14,7 @@ import copy
 
 
 __all__ = ["AutoName"]
-__version__ = "0.10.2"
+__version__ = "0.10.3"
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -65,24 +65,6 @@ class AutoName:
     >>> b.__name__
     'b'
 
-    For loops:
-    >>> for c, d in [AutoName()]:
-    ...     (c.__name__, d.__name__)
-    ...
-    ('c', 'd')
-
-    Subclassing:
-    >>> class Number(AutoName):
-    ...     def __init__(self, value):
-    ...         super().__init__()
-    ...         self.value = value
-    ...
-    >>> one = Number(1)
-    >>> one.__name__
-    'one'
-    >>> one.value
-    1
-
     Context manager:
     >>> with AutoName() as (e, f):
     ...     (e.__name__, f.__name__)
@@ -99,7 +81,6 @@ class AutoName:
         # multiple assignment syntax. That is why it store them all.
         self._multiple_names: List[str] = []
         self._iterable_names: List[List[str]] = []
-        self._copies: List[_T] = []  # type: ignore[valid-type]
         self._slices: List[slice] = []
         frame = _get_frame(self._deepness)
         try:
@@ -181,16 +162,10 @@ class AutoName:
     # The '__iter__' method is defined to give compatibility
     # with iterable unpacking syntax.
     def __iter__(self: _T) -> Iterator[_T]:
-        if self._copies:
-            for item in self._copies:
-                yield item
-        else:
-            slice_ = self._iterable_names[-1]  # See [NOTE 1]
-            for name in slice_:
-                instance = copy.copy(self)
-                instance.__name__ = name
-                self._copies.append(instance)
-                yield instance
+        for name in self._iterable_names.pop(0):
+            instance = copy.copy(self)
+            instance.__name__ = name
+            yield instance
 
     def __enter__(self: _T) -> _T:
         return self

@@ -815,14 +815,12 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         # 24 STORE_FAST               5 (e)
         # 26 STORE_FAST               6 (f)
         a, b = c = d = e, f = name.AutoName()
-        self.assertEqual(a.__name__, "e")
-        self.assertEqual(b.__name__, "f")
+        self.assertEqual(a.__name__, "a")
+        self.assertEqual(b.__name__, "b")
         self.assertEqual(c.__name__, "d")
         self.assertEqual(d.__name__, "d")
         self.assertEqual(e.__name__, "e")
         self.assertEqual(f.__name__, "f")
-        self.assertIs(a, e)
-        self.assertIs(b, f)
 
 
 if __name__ == '__main__':
