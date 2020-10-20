@@ -7,14 +7,15 @@
 'y'
 """
 
+from collections import deque
 from types import FrameType
-from typing import Iterator, Any, Optional, TypeVar, List
+from typing import Iterator, Any, Optional, TypeVar, List, Deque, Tuple
 import sys
 import copy
 
 
 __all__ = ["AutoName"]
-__version__ = "0.10.3"
+__version__ = "0.10.4"
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -23,11 +24,6 @@ _T = TypeVar("_T", bound="AutoName")
 # Instructions related with store the name of an object somewhere.
 _ALLOWED_INSTRUCTIONS = {
     4,    # DUP_TOP
-    90,   # STORE_NAME
-    95,   # STORE_ATTR
-    97,   # STORE_GLOBAL
-    125,  # STORE_FAST
-    137,  # STORE_DEREF
     144,  # EXTENDED_ARG
 }
 
@@ -76,13 +72,14 @@ class AutoName:
     __name__ = "<nameless>"
 
     def __init__(self) -> None:
+        self._iterable_names: Deque[List[str]] = deque()
 
         # Python can create many names with iterable unpacking syntax and
         # multiple assignment syntax. That is why it store them all.
-        self._multiple_names: List[str] = []
-        self._iterable_names: List[List[str]] = []
-        self._slices: List[slice] = []
+        multiple_names: List[str] = []
+        slices: List[Tuple[int, int]] = []
         frame = _get_frame(self._deepness)
+        delta = 0
         try:
             if not frame:
                 return
@@ -117,52 +114,46 @@ class AutoName:
 
                     # Store slices because names that will
                     # be used are not known at this point.
-                    begin = len(self._multiple_names)
+                    begin = len(multiple_names)
                     end = begin + count
-                    slice_ = slice(begin, end)
-                    self._slices.append(slice_)
-
-                    continue
+                    slice_ = (begin - delta, end - delta)
+                    slices.append(slice_)
+                    delta = end - begin
                 elif instruction == 144:  # EXTENDED_ARG
                     extended_arg |= bytecode[i + 1] << 8  # compute the index
                 elif instruction in STORED_NAMES:
                     index = extended_arg | bytecode[i + 1]
                     name = STORED_NAMES[instruction][index]
-                    self._multiple_names.append(name)
-                if self._multiple_names:
+                    multiple_names.append(name)
+                elif multiple_names:
                     if instruction not in _ALLOWED_INSTRUCTIONS:
                         break
 
             # Iterable unpacking syntax
-            if self._slices:
-                delta = 0
-                for slice_ in self._slices:
-                    begin = slice_.start - delta
-                    end = slice_.stop - delta
+            if slices:
+                for begin, end in slices:
 
                     # Store names that will be used in iterable unpacking
-                    names = self._multiple_names[begin:end]
+                    names = multiple_names[begin:end]
                     self._iterable_names.append(names)
 
                     # Remove unneeded names that will be
                     # used in single or multiple assignment
-                    del self._multiple_names[begin:end]
-
-                    delta = end - begin
+                    del multiple_names[begin:end]
 
             # Multiple and single assignment syntax
-            if self._multiple_names:
+            if multiple_names:
 
                 # [NOTE 1]: The correct name is the last one because
                 # that is how __set_name__ behaves in the same situation.
-                self.__name__ = self._multiple_names[-1]
+                self.__name__ = multiple_names[-1]
         finally:
             del frame
 
     # The '__iter__' method is defined to give compatibility
     # with iterable unpacking syntax.
     def __iter__(self: _T) -> Iterator[_T]:
-        for name in self._iterable_names.pop(0):
+        for name in self._iterable_names.popleft():
             instance = copy.copy(self)
             instance.__name__ = name
             yield instance
