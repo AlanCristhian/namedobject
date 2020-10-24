@@ -123,6 +123,7 @@ class AutoName:
                     extended_arg |= bytecode[i + 1] << 8  # compute the index
                 elif instruction in STORED_NAMES:
                     index = extended_arg | bytecode[i + 1]
+                    extended_arg = 0
                     name = STORED_NAMES[instruction][index]
                     multiple_names.append(name)
                 elif multiple_names:
