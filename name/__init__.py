@@ -72,6 +72,9 @@ class AutoName:
     __name__ = "<nameless>"
 
     def __init__(self) -> None:
+
+        # Here it will be stored the names needed
+        # for the iterable unpacking syntax.
         self._iterable_names: Deque[List[str]] = deque()
 
         # Python can create many names with iterable unpacking syntax and
@@ -111,6 +114,7 @@ class AutoName:
 
                     # count is the amount of variables that want to unpack
                     count = extended_arg | bytecode[i + 1]
+                    extended_arg = 0
 
                     # Store slices because names that will
                     # be used are not known at this point.
