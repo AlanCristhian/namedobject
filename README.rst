@@ -1,23 +1,23 @@
-name
-====
+objname
+=======
 
 A library with a base class that stores the assigned name of an object. ::
 
-    >>> import name
-    >>> x, y = name.AutoName()
+    >>> import objname
+    >>> x, y = objname.AutoName()
     >>> x.name
     'x'
     >>> y.name
     'y'
 
-Official documentation at readthedocs: https://auto-name.readthedocs.io/en/latest/
+Official documentation at readthedocs: https://objname.readthedocs.io/en/latest/
 
 .. contents:: Table of Contents
 
 Requirements
 ------------
 
-``name`` requires Python 3.6 or newer. It has no third-party dependencies and
+``objname`` requires Python 3.6 or newer. It has no third-party dependencies and
 works on both POSIX and Windows. It runs in cPython and PyPy.
 
 Installation
@@ -25,27 +25,27 @@ Installation
 
 To install it just use ``pip``::
 
-    $ pip install name
+    $ pip install objname
 
 You can also install it from *github*::
 
-    $ pip install git+https://github.com/AlanCristhian/name.git
+    $ pip install git+https://github.com/AlanCristhian/objname.git
 
 Tutorial
 --------
 
-``name`` has only one class: ``AutoName``. It creates an object with the
-``__name__`` attribute that stores the name of such object. E.g: ::
+``objname`` has only one class: ``AutoName``. It creates an object with the
+``name`` attribute that stores the name of such object. E.g: ::
 
-    >>> import name
-    >>> a = name.AutoName()
+    >>> import objname
+    >>> a = objname.AutoName()
     >>> a.name
     'a'
 
-You can make your own subclass that inherit from ``name.AutoName``. ::
+You can make your own subclass that inherit from ``objname.AutoName``. ::
 
-    >>> import name
-    >>> class Number(name.AutoName):
+    >>> import objname
+    >>> class Number(objname.AutoName):
     ...     def __init__(self, value):
     ...         super().__init__()
     ...         self.value = value
@@ -71,8 +71,8 @@ Multiple assignment syntax
 
 ``AutoName`` stores the last name in the expression. ::
 
-    >>> import name
-    >>> a = b = name.AutoName()
+    >>> import objname
+    >>> a = b = objname.AutoName()
     >>> a.name
     'b'
     >>> b.name
@@ -116,8 +116,8 @@ API reference
 Contribute
 ----------
 
-- Issue Tracker: https://github.com/AlanCristhian/name/issues
-- Source Code: https://github.com/AlanCristhian/name
+- Issue Tracker: https://github.com/AlanCristhian/objname/issues
+- Source Code: https://github.com/AlanCristhian/objname
 
 Donation
 --------

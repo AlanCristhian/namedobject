@@ -5,12 +5,12 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="name",
+    name="objname",
     version="0.11.0",
-    packages=["name"],
+    packages=["objname"],
     package_data={
-        "name": ["__init__.py", "py.typed", "_module.py",
-                 "test_name.py"],
+        "objname": ["__init__.py", "py.typed", "_module.py",
+                    "test_objname.py"],
     },
 
     zip_safe=False,
@@ -36,5 +36,5 @@ setup(
       ],
     license="MIT",
     keywords="data structure debug",
-    url="https://github.com/AlanCristhian/name",
+    url="https://github.com/AlanCristhian/objname",
 )

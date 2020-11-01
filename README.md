@@ -1,17 +1,17 @@
-# name
+# objname
 
 A library with a base class that stores the assigned name of an object.
 
 ```pycon
->>> import name
->>> x, y = name.AutoName()
+>>> import objname
+>>> x, y = objname.AutoName()
 >>> x.name
 'x'
 >>> y.name
 'y'
 ```
 
-Official documentation at readthedocs: https://auto-name.readthedocs.io/en/latest/
+Official documentation at readthedocs: https://objname.readthedocs.io/en/latest/
 
 ## Table Of Contents
 
@@ -29,7 +29,7 @@ Official documentation at readthedocs: https://auto-name.readthedocs.io/en/lates
 
 ## Requirements <a name="requirements"></a>
 
-`name` requires Python 3.6 or newer. It has no third-party dependencies and
+`objname` requires Python 3.6 or newer. It has no third-party dependencies and
 works on both POSIX and Windows. It runs in cPython and PyPy.
 
 ## Installation <a name="installation"></a>
@@ -37,23 +37,23 @@ works on both POSIX and Windows. It runs in cPython and PyPy.
 To install it just use ``pip``:
 
 ```shell
-$ pip install name
+$ pip install objname
 ```
 
 You can also install it from *github*:
 
 ```shell
-$ pip install git+https://github.com/AlanCristhian/name.git
+$ pip install git+https://github.com/AlanCristhian/objname.git
 ```
 
 ## Tutorial <a name="tutorial"></a>
 
-`name` has only one class: `AutoName`. It creates an object with the
-`name` attribute that stores the name of such object. E.g:
+`objname` has only one class: `AutoName`. It creates an object with the
+`objname` attribute that stores the name of such object. E.g:
 
 ```pycon
->>> import name
->>> a = name.AutoName()
+>>> import objname
+>>> a = objname.AutoName()
 >>> a.name
 'a'
 ```
@@ -61,19 +61,19 @@ $ pip install git+https://github.com/AlanCristhian/name.git
 It can make multiple variables with iterable unpacking syntax.
 
 ```pycon
->>> import name
->>> x, y = name.AutoName()
+>>> import objname
+>>> x, y = objname.AutoName()
 >>> x.name
 'x'
 >>> y.name
 'y'
 ```
 
-You can make your own subclass that inherit from `name.AutoName`.
+You can make your own subclass that inherit from `objname.AutoName`.
 
 ```pycon
->>> import name
->>> class Number(name.AutoName):
+>>> import objname
+>>> class Number(objname.AutoName):
 ...     def __init__(self, value):
 ...         super().__init__()
 ...         self.value = value
@@ -98,8 +98,8 @@ the object was created. If it can't find a name, then the default
 `AutoName` stores the last name in the expression.
 
 ```pycon
->>> import name
->>> a = b = name.AutoName()
+>>> import objname
+>>> a = b = objname.AutoName()
 >>> a.name
 'b'
 >>> b.name
@@ -148,8 +148,8 @@ Iterable unpacking syntax:
 
 ## Contribute <a name="contribute"></a>
 
-- Issue Tracker: https://github.com/AlanCristhian/name/issues
-- Source Code: https://github.com/AlanCristhian/name
+- Issue Tracker: https://github.com/AlanCristhian/objname/issues
+- Source Code: https://github.com/AlanCristhian/objname
 
 ## Donation <a name="donation"></a>
 
