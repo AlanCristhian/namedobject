@@ -18,7 +18,7 @@ It can make multiple variables with iterable unpacking syntax. ::
     >>> y.name
     'y'
 
-You can make your own subclass that inherit from ``name.AutoName``. ::
+You can make your own subclass that inherit from ``objname.AutoName``. ::
 
     >>> import objname
     >>> class Number(objname.AutoName):
