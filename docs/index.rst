@@ -26,5 +26,5 @@ object::
    reference
    observations
    contribute
-   support
+   donation
    license

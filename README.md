@@ -24,7 +24,7 @@ Official documentation at readthedocs: https://auto-name.readthedocs.io/en/lates
 - [API reference](#api-refernce)
     - [class AutoName()](#class-auto)
 - [Contribute](#contribute)
-- [Support](#support)
+- [Donation](#donation)
 - [License](#license)
 
 ## Requirements <a name="requirements"></a>
@@ -151,10 +151,9 @@ Iterable unpacking syntax:
 - Issue Tracker: https://github.com/AlanCristhian/name/issues
 - Source Code: https://github.com/AlanCristhian/name
 
-## Support <a name="support"></a>
+## Donation <a name="donation"></a>
 
-If you are having issues, please report it at
-[github](https://github.com/AlanCristhian/name/issues)
+Buy Me a Coffee 🙂: https://www.paypal.com/donate?hosted_button_id=KFJYZEVQVRQDE
 
 ## License <a name="license"></a>
 

@@ -119,11 +119,10 @@ Contribute
 - Issue Tracker: https://github.com/AlanCristhian/name/issues
 - Source Code: https://github.com/AlanCristhian/name
 
-Support
--------
+Donation
+--------
 
-If you are having issues, please report it at
-`github <https://github.com/AlanCristhian/name/issues>`_
+Buy Me a Coffee 🙂: https://www.paypal.com/donate?hosted_button_id=KFJYZEVQVRQDE
 
 License
 -------
