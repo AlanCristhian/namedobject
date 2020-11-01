@@ -1,5 +1,9 @@
 from setuptools import setup  # type: ignore[import]
 
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name="name",
     version="0.11.0",
@@ -14,6 +18,8 @@ setup(
     author_email="alan.cristh@gmail.com",
     description="A library with a base class that "
                 "stores the assigned name of an object.",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
