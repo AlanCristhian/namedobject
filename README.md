@@ -11,7 +11,7 @@ A library with a base class that stores the assigned name of an object.
 'y'
 ```
 
-Official documentation at readthedocs
+Official documentation at readthedocs: https://auto-name.readthedocs.io/en/latest/
 
 ## Table Of Contents
 
