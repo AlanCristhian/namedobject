@@ -1,32 +1,32 @@
 import sys
 import unittest
 
-import name
+import objname
 from . import _module
 
 
 class LocalVariableSuite(unittest.TestCase):
     def test_object_instance(self) -> None:
-        obj = name.AutoName()
-        self.assertTrue(isinstance(obj, name.AutoName))
+        obj = objname.AutoName()
+        self.assertTrue(isinstance(obj, objname.AutoName))
 
     def test_single_assignment(self) -> None:
-        obj = name.AutoName()
+        obj = objname.AutoName()
         self.assertEqual(obj.name, "obj")
 
     def test_multiple_assignment(self) -> None:
-        a = b = c = name.AutoName()
+        a = b = c = objname.AutoName()
         self.assertEqual(a.name, "c")
         self.assertEqual(b.name, "c")
         self.assertEqual(c.name, "c")
 
     def test_unpacking(self) -> None:
-        x, y = name.AutoName()
+        x, y = objname.AutoName()
         self.assertEqual(x.name, "x")
         self.assertEqual(y.name, "y")
 
     def test_subclass(self) -> None:
-        class SubClass(name.AutoName):
+        class SubClass(objname.AutoName):
             def __init__(self) -> None:
                 super().__init__()
         obj = SubClass()
@@ -37,10 +37,10 @@ class LocalVariableSuite(unittest.TestCase):
             def __init__(self, type: object) -> None:
                 self.__type__ = type
 
-        class Symbol(Numeric, name.AutoName):
+        class Symbol(Numeric, objname.AutoName):
             def __init__(self, type: object) -> None:
                 Numeric.__init__(self, type)
-                name.AutoName.__init__(self)
+                objname.AutoName.__init__(self)
 
         x = Symbol(complex)
         self.assertEqual(x.name, "x")
@@ -48,9 +48,9 @@ class LocalVariableSuite(unittest.TestCase):
 
     def test_assignment_in_a_child_class_method(self) -> None:
         """ Test the stored name in a method of a class that inherit from
-        `name.AutoName`.
+        `objname.AutoName`.
         """
-        class Atom(name.AutoName):
+        class Atom(objname.AutoName):
             def __init__(self) -> None:
                 super().__init__()
 
@@ -62,11 +62,11 @@ class LocalVariableSuite(unittest.TestCase):
 
     def test_assigned_name_in_a_namespace(self) -> None:
         class Namespace:
-            attr = name.AutoName()
+            attr = objname.AutoName()
         self.assertEqual(Namespace.attr.name, "attr")
 
     def test_assigned_name_in_a_property_method(self) -> None:
-        class Number(name.AutoName):
+        class Number(objname.AutoName):
             @property
             def custom_attribute_name(self) -> str:
                 return self.name
@@ -75,300 +75,300 @@ class LocalVariableSuite(unittest.TestCase):
 
     def test_multiple_assignment_in_namespace(self) -> None:
         class Multiple:
-            attr_1 = attr_2 = name.AutoName()
+            attr_1 = attr_2 = objname.AutoName()
         self.assertEqual(Multiple.attr_1.name, "attr_2")
         self.assertEqual(Multiple.attr_2.name, "attr_2")
 
     def test_single_var_in_for_loop(self) -> None:
-        for x in [name.AutoName()]:
+        for x in [objname.AutoName()]:
             pass
         self.assertEqual(x.name, "x")
 
     def test_two_vars_in_for_loop(self) -> None:
-        for x, y in [name.AutoName()]:
+        for x, y in [objname.AutoName()]:
             pass
         self.assertEqual(x.name, "x")
         self.assertEqual(y.name, "y")
 
     def test_default_name(self) -> None:
-        self.assertEqual(name.AutoName().name, "<nameless>")
+        self.assertEqual(objname.AutoName().name, "<nameless>")
 
     def test_inside_function(self) -> None:
         def function():
-            inner = name.AutoName()
+            inner = objname.AutoName()
             return inner
         self.assertEqual(function().name, "inner")
 
     def test_extended_arg_opcode(self) -> None:
-        _000 = name.AutoName()
-        _001 = name.AutoName()
-        _002 = name.AutoName()
-        _003 = name.AutoName()
-        _004 = name.AutoName()
-        _005 = name.AutoName()
-        _006 = name.AutoName()
-        _007 = name.AutoName()
-        _008 = name.AutoName()
-        _009 = name.AutoName()
-        _010 = name.AutoName()
-        _011 = name.AutoName()
-        _012 = name.AutoName()
-        _013 = name.AutoName()
-        _014 = name.AutoName()
-        _015 = name.AutoName()
-        _016 = name.AutoName()
-        _017 = name.AutoName()
-        _018 = name.AutoName()
-        _019 = name.AutoName()
-        _020 = name.AutoName()
-        _021 = name.AutoName()
-        _022 = name.AutoName()
-        _023 = name.AutoName()
-        _024 = name.AutoName()
-        _025 = name.AutoName()
-        _026 = name.AutoName()
-        _027 = name.AutoName()
-        _028 = name.AutoName()
-        _029 = name.AutoName()
-        _030 = name.AutoName()
-        _031 = name.AutoName()
-        _032 = name.AutoName()
-        _033 = name.AutoName()
-        _034 = name.AutoName()
-        _035 = name.AutoName()
-        _036 = name.AutoName()
-        _037 = name.AutoName()
-        _038 = name.AutoName()
-        _039 = name.AutoName()
-        _040 = name.AutoName()
-        _041 = name.AutoName()
-        _042 = name.AutoName()
-        _043 = name.AutoName()
-        _044 = name.AutoName()
-        _045 = name.AutoName()
-        _046 = name.AutoName()
-        _047 = name.AutoName()
-        _048 = name.AutoName()
-        _049 = name.AutoName()
-        _050 = name.AutoName()
-        _051 = name.AutoName()
-        _052 = name.AutoName()
-        _053 = name.AutoName()
-        _054 = name.AutoName()
-        _055 = name.AutoName()
-        _056 = name.AutoName()
-        _057 = name.AutoName()
-        _058 = name.AutoName()
-        _059 = name.AutoName()
-        _060 = name.AutoName()
-        _061 = name.AutoName()
-        _062 = name.AutoName()
-        _063 = name.AutoName()
-        _064 = name.AutoName()
-        _065 = name.AutoName()
-        _066 = name.AutoName()
-        _067 = name.AutoName()
-        _068 = name.AutoName()
-        _069 = name.AutoName()
-        _070 = name.AutoName()
-        _071 = name.AutoName()
-        _072 = name.AutoName()
-        _073 = name.AutoName()
-        _074 = name.AutoName()
-        _075 = name.AutoName()
-        _076 = name.AutoName()
-        _077 = name.AutoName()
-        _078 = name.AutoName()
-        _079 = name.AutoName()
-        _080 = name.AutoName()
-        _081 = name.AutoName()
-        _082 = name.AutoName()
-        _083 = name.AutoName()
-        _084 = name.AutoName()
-        _085 = name.AutoName()
-        _086 = name.AutoName()
-        _087 = name.AutoName()
-        _088 = name.AutoName()
-        _089 = name.AutoName()
-        _090 = name.AutoName()
-        _091 = name.AutoName()
-        _092 = name.AutoName()
-        _093 = name.AutoName()
-        _094 = name.AutoName()
-        _095 = name.AutoName()
-        _096 = name.AutoName()
-        _097 = name.AutoName()
-        _098 = name.AutoName()
-        _099 = name.AutoName()
-        _100 = name.AutoName()
-        _101 = name.AutoName()
-        _102 = name.AutoName()
-        _103 = name.AutoName()
-        _104 = name.AutoName()
-        _105 = name.AutoName()
-        _106 = name.AutoName()
-        _107 = name.AutoName()
-        _108 = name.AutoName()
-        _109 = name.AutoName()
-        _110 = name.AutoName()
-        _111 = name.AutoName()
-        _112 = name.AutoName()
-        _113 = name.AutoName()
-        _114 = name.AutoName()
-        _115 = name.AutoName()
-        _116 = name.AutoName()
-        _117 = name.AutoName()
-        _118 = name.AutoName()
-        _119 = name.AutoName()
-        _120 = name.AutoName()
-        _121 = name.AutoName()
-        _122 = name.AutoName()
-        _123 = name.AutoName()
-        _124 = name.AutoName()
-        _125 = name.AutoName()
-        _126 = name.AutoName()
-        _127 = name.AutoName()
-        _128 = name.AutoName()
-        _129 = name.AutoName()
-        _130 = name.AutoName()
-        _131 = name.AutoName()
-        _132 = name.AutoName()
-        _133 = name.AutoName()
-        _134 = name.AutoName()
-        _135 = name.AutoName()
-        _136 = name.AutoName()
-        _137 = name.AutoName()
-        _138 = name.AutoName()
-        _139 = name.AutoName()
-        _140 = name.AutoName()
-        _141 = name.AutoName()
-        _142 = name.AutoName()
-        _143 = name.AutoName()
-        _144 = name.AutoName()
-        _145 = name.AutoName()
-        _146 = name.AutoName()
-        _147 = name.AutoName()
-        _148 = name.AutoName()
-        _149 = name.AutoName()
-        _150 = name.AutoName()
-        _151 = name.AutoName()
-        _152 = name.AutoName()
-        _153 = name.AutoName()
-        _154 = name.AutoName()
-        _155 = name.AutoName()
-        _156 = name.AutoName()
-        _157 = name.AutoName()
-        _158 = name.AutoName()
-        _159 = name.AutoName()
-        _160 = name.AutoName()
-        _161 = name.AutoName()
-        _162 = name.AutoName()
-        _163 = name.AutoName()
-        _164 = name.AutoName()
-        _165 = name.AutoName()
-        _166 = name.AutoName()
-        _167 = name.AutoName()
-        _168 = name.AutoName()
-        _169 = name.AutoName()
-        _170 = name.AutoName()
-        _171 = name.AutoName()
-        _172 = name.AutoName()
-        _173 = name.AutoName()
-        _174 = name.AutoName()
-        _175 = name.AutoName()
-        _176 = name.AutoName()
-        _177 = name.AutoName()
-        _178 = name.AutoName()
-        _179 = name.AutoName()
-        _180 = name.AutoName()
-        _181 = name.AutoName()
-        _182 = name.AutoName()
-        _183 = name.AutoName()
-        _184 = name.AutoName()
-        _185 = name.AutoName()
-        _186 = name.AutoName()
-        _187 = name.AutoName()
-        _188 = name.AutoName()
-        _189 = name.AutoName()
-        _190 = name.AutoName()
-        _191 = name.AutoName()
-        _192 = name.AutoName()
-        _193 = name.AutoName()
-        _194 = name.AutoName()
-        _195 = name.AutoName()
-        _196 = name.AutoName()
-        _197 = name.AutoName()
-        _198 = name.AutoName()
-        _199 = name.AutoName()
-        _200 = name.AutoName()
-        _201 = name.AutoName()
-        _202 = name.AutoName()
-        _203 = name.AutoName()
-        _204 = name.AutoName()
-        _205 = name.AutoName()
-        _206 = name.AutoName()
-        _207 = name.AutoName()
-        _208 = name.AutoName()
-        _209 = name.AutoName()
-        _210 = name.AutoName()
-        _211 = name.AutoName()
-        _212 = name.AutoName()
-        _213 = name.AutoName()
-        _214 = name.AutoName()
-        _215 = name.AutoName()
-        _216 = name.AutoName()
-        _217 = name.AutoName()
-        _218 = name.AutoName()
-        _219 = name.AutoName()
-        _220 = name.AutoName()
-        _221 = name.AutoName()
-        _222 = name.AutoName()
-        _223 = name.AutoName()
-        _224 = name.AutoName()
-        _225 = name.AutoName()
-        _226 = name.AutoName()
-        _227 = name.AutoName()
-        _228 = name.AutoName()
-        _229 = name.AutoName()
-        _230 = name.AutoName()
-        _231 = name.AutoName()
-        _232 = name.AutoName()
-        _233 = name.AutoName()
-        _234 = name.AutoName()
-        _235 = name.AutoName()
-        _236 = name.AutoName()
-        _237 = name.AutoName()
-        _238 = name.AutoName()
-        _239 = name.AutoName()
-        _240 = name.AutoName()
-        _241 = name.AutoName()
-        _242 = name.AutoName()
-        _243 = name.AutoName()
-        _244 = name.AutoName()
-        _245 = name.AutoName()
-        _246 = name.AutoName()
-        _247 = name.AutoName()
-        _248 = name.AutoName()
-        _249 = name.AutoName()
-        _250 = name.AutoName()
-        _251 = name.AutoName()
-        _252 = name.AutoName()
-        _253 = name.AutoName()
-        _254 = name.AutoName()
-        _255 = name.AutoName()
-        _256 = name.AutoName()
+        _000 = objname.AutoName()
+        _001 = objname.AutoName()
+        _002 = objname.AutoName()
+        _003 = objname.AutoName()
+        _004 = objname.AutoName()
+        _005 = objname.AutoName()
+        _006 = objname.AutoName()
+        _007 = objname.AutoName()
+        _008 = objname.AutoName()
+        _009 = objname.AutoName()
+        _010 = objname.AutoName()
+        _011 = objname.AutoName()
+        _012 = objname.AutoName()
+        _013 = objname.AutoName()
+        _014 = objname.AutoName()
+        _015 = objname.AutoName()
+        _016 = objname.AutoName()
+        _017 = objname.AutoName()
+        _018 = objname.AutoName()
+        _019 = objname.AutoName()
+        _020 = objname.AutoName()
+        _021 = objname.AutoName()
+        _022 = objname.AutoName()
+        _023 = objname.AutoName()
+        _024 = objname.AutoName()
+        _025 = objname.AutoName()
+        _026 = objname.AutoName()
+        _027 = objname.AutoName()
+        _028 = objname.AutoName()
+        _029 = objname.AutoName()
+        _030 = objname.AutoName()
+        _031 = objname.AutoName()
+        _032 = objname.AutoName()
+        _033 = objname.AutoName()
+        _034 = objname.AutoName()
+        _035 = objname.AutoName()
+        _036 = objname.AutoName()
+        _037 = objname.AutoName()
+        _038 = objname.AutoName()
+        _039 = objname.AutoName()
+        _040 = objname.AutoName()
+        _041 = objname.AutoName()
+        _042 = objname.AutoName()
+        _043 = objname.AutoName()
+        _044 = objname.AutoName()
+        _045 = objname.AutoName()
+        _046 = objname.AutoName()
+        _047 = objname.AutoName()
+        _048 = objname.AutoName()
+        _049 = objname.AutoName()
+        _050 = objname.AutoName()
+        _051 = objname.AutoName()
+        _052 = objname.AutoName()
+        _053 = objname.AutoName()
+        _054 = objname.AutoName()
+        _055 = objname.AutoName()
+        _056 = objname.AutoName()
+        _057 = objname.AutoName()
+        _058 = objname.AutoName()
+        _059 = objname.AutoName()
+        _060 = objname.AutoName()
+        _061 = objname.AutoName()
+        _062 = objname.AutoName()
+        _063 = objname.AutoName()
+        _064 = objname.AutoName()
+        _065 = objname.AutoName()
+        _066 = objname.AutoName()
+        _067 = objname.AutoName()
+        _068 = objname.AutoName()
+        _069 = objname.AutoName()
+        _070 = objname.AutoName()
+        _071 = objname.AutoName()
+        _072 = objname.AutoName()
+        _073 = objname.AutoName()
+        _074 = objname.AutoName()
+        _075 = objname.AutoName()
+        _076 = objname.AutoName()
+        _077 = objname.AutoName()
+        _078 = objname.AutoName()
+        _079 = objname.AutoName()
+        _080 = objname.AutoName()
+        _081 = objname.AutoName()
+        _082 = objname.AutoName()
+        _083 = objname.AutoName()
+        _084 = objname.AutoName()
+        _085 = objname.AutoName()
+        _086 = objname.AutoName()
+        _087 = objname.AutoName()
+        _088 = objname.AutoName()
+        _089 = objname.AutoName()
+        _090 = objname.AutoName()
+        _091 = objname.AutoName()
+        _092 = objname.AutoName()
+        _093 = objname.AutoName()
+        _094 = objname.AutoName()
+        _095 = objname.AutoName()
+        _096 = objname.AutoName()
+        _097 = objname.AutoName()
+        _098 = objname.AutoName()
+        _099 = objname.AutoName()
+        _100 = objname.AutoName()
+        _101 = objname.AutoName()
+        _102 = objname.AutoName()
+        _103 = objname.AutoName()
+        _104 = objname.AutoName()
+        _105 = objname.AutoName()
+        _106 = objname.AutoName()
+        _107 = objname.AutoName()
+        _108 = objname.AutoName()
+        _109 = objname.AutoName()
+        _110 = objname.AutoName()
+        _111 = objname.AutoName()
+        _112 = objname.AutoName()
+        _113 = objname.AutoName()
+        _114 = objname.AutoName()
+        _115 = objname.AutoName()
+        _116 = objname.AutoName()
+        _117 = objname.AutoName()
+        _118 = objname.AutoName()
+        _119 = objname.AutoName()
+        _120 = objname.AutoName()
+        _121 = objname.AutoName()
+        _122 = objname.AutoName()
+        _123 = objname.AutoName()
+        _124 = objname.AutoName()
+        _125 = objname.AutoName()
+        _126 = objname.AutoName()
+        _127 = objname.AutoName()
+        _128 = objname.AutoName()
+        _129 = objname.AutoName()
+        _130 = objname.AutoName()
+        _131 = objname.AutoName()
+        _132 = objname.AutoName()
+        _133 = objname.AutoName()
+        _134 = objname.AutoName()
+        _135 = objname.AutoName()
+        _136 = objname.AutoName()
+        _137 = objname.AutoName()
+        _138 = objname.AutoName()
+        _139 = objname.AutoName()
+        _140 = objname.AutoName()
+        _141 = objname.AutoName()
+        _142 = objname.AutoName()
+        _143 = objname.AutoName()
+        _144 = objname.AutoName()
+        _145 = objname.AutoName()
+        _146 = objname.AutoName()
+        _147 = objname.AutoName()
+        _148 = objname.AutoName()
+        _149 = objname.AutoName()
+        _150 = objname.AutoName()
+        _151 = objname.AutoName()
+        _152 = objname.AutoName()
+        _153 = objname.AutoName()
+        _154 = objname.AutoName()
+        _155 = objname.AutoName()
+        _156 = objname.AutoName()
+        _157 = objname.AutoName()
+        _158 = objname.AutoName()
+        _159 = objname.AutoName()
+        _160 = objname.AutoName()
+        _161 = objname.AutoName()
+        _162 = objname.AutoName()
+        _163 = objname.AutoName()
+        _164 = objname.AutoName()
+        _165 = objname.AutoName()
+        _166 = objname.AutoName()
+        _167 = objname.AutoName()
+        _168 = objname.AutoName()
+        _169 = objname.AutoName()
+        _170 = objname.AutoName()
+        _171 = objname.AutoName()
+        _172 = objname.AutoName()
+        _173 = objname.AutoName()
+        _174 = objname.AutoName()
+        _175 = objname.AutoName()
+        _176 = objname.AutoName()
+        _177 = objname.AutoName()
+        _178 = objname.AutoName()
+        _179 = objname.AutoName()
+        _180 = objname.AutoName()
+        _181 = objname.AutoName()
+        _182 = objname.AutoName()
+        _183 = objname.AutoName()
+        _184 = objname.AutoName()
+        _185 = objname.AutoName()
+        _186 = objname.AutoName()
+        _187 = objname.AutoName()
+        _188 = objname.AutoName()
+        _189 = objname.AutoName()
+        _190 = objname.AutoName()
+        _191 = objname.AutoName()
+        _192 = objname.AutoName()
+        _193 = objname.AutoName()
+        _194 = objname.AutoName()
+        _195 = objname.AutoName()
+        _196 = objname.AutoName()
+        _197 = objname.AutoName()
+        _198 = objname.AutoName()
+        _199 = objname.AutoName()
+        _200 = objname.AutoName()
+        _201 = objname.AutoName()
+        _202 = objname.AutoName()
+        _203 = objname.AutoName()
+        _204 = objname.AutoName()
+        _205 = objname.AutoName()
+        _206 = objname.AutoName()
+        _207 = objname.AutoName()
+        _208 = objname.AutoName()
+        _209 = objname.AutoName()
+        _210 = objname.AutoName()
+        _211 = objname.AutoName()
+        _212 = objname.AutoName()
+        _213 = objname.AutoName()
+        _214 = objname.AutoName()
+        _215 = objname.AutoName()
+        _216 = objname.AutoName()
+        _217 = objname.AutoName()
+        _218 = objname.AutoName()
+        _219 = objname.AutoName()
+        _220 = objname.AutoName()
+        _221 = objname.AutoName()
+        _222 = objname.AutoName()
+        _223 = objname.AutoName()
+        _224 = objname.AutoName()
+        _225 = objname.AutoName()
+        _226 = objname.AutoName()
+        _227 = objname.AutoName()
+        _228 = objname.AutoName()
+        _229 = objname.AutoName()
+        _230 = objname.AutoName()
+        _231 = objname.AutoName()
+        _232 = objname.AutoName()
+        _233 = objname.AutoName()
+        _234 = objname.AutoName()
+        _235 = objname.AutoName()
+        _236 = objname.AutoName()
+        _237 = objname.AutoName()
+        _238 = objname.AutoName()
+        _239 = objname.AutoName()
+        _240 = objname.AutoName()
+        _241 = objname.AutoName()
+        _242 = objname.AutoName()
+        _243 = objname.AutoName()
+        _244 = objname.AutoName()
+        _245 = objname.AutoName()
+        _246 = objname.AutoName()
+        _247 = objname.AutoName()
+        _248 = objname.AutoName()
+        _249 = objname.AutoName()
+        _250 = objname.AutoName()
+        _251 = objname.AutoName()
+        _252 = objname.AutoName()
+        _253 = objname.AutoName()
+        _254 = objname.AutoName()
+        _255 = objname.AutoName()
+        _256 = objname.AutoName()
         self.assertEqual(_256.name, "_256")
 
     @unittest.skipIf(sys.version_info < (3, 8), "No warlust operator.")
     def test_warlust(self) -> None:
         expression = "\n".join((
-            '(x := name.AutoName())',
+            '(x := objname.AutoName())',
             'self.assertEqual(x.name, "x")',
         ))
         exec(expression)
 
     def test_custom_attribute(self) -> None:
-        class Number(name.AutoName):
+        class Number(objname.AutoName):
             def __init__(self) -> None:
                 super().__init__()
                 self.name = self.name
@@ -377,9 +377,9 @@ class LocalVariableSuite(unittest.TestCase):
 
     def test_name_collision(self):
         "Test that the name is searched in the correct namespace"
-        class Subclass(name.AutoName):
+        class Subclass(objname.AutoName):
             def __init__(self):
-                interior = name.AutoName()
+                interior = objname.AutoName()
                 super().__init__()
                 self.interior = interior.name
 
@@ -394,9 +394,9 @@ class LocalVariableSuite(unittest.TestCase):
             def __init__(self, type: object) -> None:
                 self.__type__ = type
 
-        class Variable(name.AutoName, Numeric):
+        class Variable(objname.AutoName, Numeric):
             def __init__(self, type: object) -> None:
-                name.AutoName.__init__(self)
+                objname.AutoName.__init__(self)
                 Numeric.__init__(self, type)
 
         foo, var = Variable(int)
@@ -406,16 +406,16 @@ class LocalVariableSuite(unittest.TestCase):
     def test_autoname_instance_as_object_attribute(self) -> None:
         class Object:
             def __init__(self):
-                self.attribute = name.AutoName()
+                self.attribute = objname.AutoName()
         obtained = Object().attribute.name
         self.assertEqual(obtained, "attribute")
 
 
 class CellVariableSuite(unittest.TestCase):
     def test_single_assignment(self) -> None:
-        a = name.AutoName()
-        b = name.AutoName()
-        c = name.AutoName()
+        a = objname.AutoName()
+        b = objname.AutoName()
+        c = objname.AutoName()
 
         def inner():
             return a, b, c
@@ -426,7 +426,7 @@ class CellVariableSuite(unittest.TestCase):
         self.assertEqual(z.name, "c")
 
     def test_multiple_assignment(self) -> None:
-        a = b = c = name.AutoName()
+        a = b = c = objname.AutoName()
 
         def inner():
             return a, b, c
@@ -437,7 +437,7 @@ class CellVariableSuite(unittest.TestCase):
         self.assertEqual(z.name, "c")
 
     def test_unpacking(self) -> None:
-        a, b, c = name.AutoName()
+        a, b, c = objname.AutoName()
 
         def inner():
             return a, b, c
@@ -448,7 +448,7 @@ class CellVariableSuite(unittest.TestCase):
         self.assertEqual(z.name, "c")
 
     def test_subclass(self) -> None:
-        class SubClass(name.AutoName):
+        class SubClass(objname.AutoName):
             def __init__(self) -> None:
                 super().__init__()
 
@@ -465,10 +465,10 @@ class CellVariableSuite(unittest.TestCase):
             def __init__(self, type: object) -> None:
                 self.__type__ = type
 
-        class Symbol(Numeric, name.AutoName):
+        class Symbol(Numeric, objname.AutoName):
             def __init__(self, type: object) -> None:
                 Numeric.__init__(self, type)
-                name.AutoName.__init__(self)
+                objname.AutoName.__init__(self)
 
         x = Symbol(complex)
 
@@ -480,7 +480,7 @@ class CellVariableSuite(unittest.TestCase):
         self.assertEqual(a.__type__, complex)
 
     def test_assignment_in_a_child_class_method(self) -> None:
-        class Atom(name.AutoName):
+        class Atom(objname.AutoName):
             def __init__(self) -> None:
                 super().__init__()
 
@@ -496,7 +496,7 @@ class CellVariableSuite(unittest.TestCase):
         self.assertEqual(repr((x, y, z)), "(a, b, c)")
 
     def test_assigned_name_in_a_property_method(self) -> None:
-        class Number(name.AutoName):
+        class Number(objname.AutoName):
             @property
             def custom_attribute_name(self) -> str:
                 return self.name
@@ -510,14 +510,14 @@ class CellVariableSuite(unittest.TestCase):
         self.assertEqual(m.custom_attribute_name, "n")
 
     def test_single_var_in_for_loop(self) -> None:
-        for x in [name.AutoName()]:
+        for x in [objname.AutoName()]:
             def inner():
                 return x
         a = inner()
         self.assertEqual(a.name, "x")
 
     def test_two_vars_in_for_loop(self) -> None:
-        for x, y in [name.AutoName()]:
+        for x, y in [objname.AutoName()]:
             def inner():
                 return x, y
         a, b = inner()
@@ -546,7 +546,7 @@ class ModuleVariableSuite(unittest.TestCase):
 
     def test_assignment_in_a_child_class_method(self) -> None:
         """ Test the stored name in a method of a class that inherit from
-        `name.AutoName`.
+        `objname.AutoName`.
         """
         expected = repr((_module.e, _module.f, _module.g))
         self.assertEqual(expected, "(e, f, g)")
@@ -566,12 +566,12 @@ class ModuleVariableSuite(unittest.TestCase):
 # ========================================
 
 
-ga = name.AutoName()
-gb = gc = gd = name.AutoName()
-ge, gf = name.AutoName()
+ga = objname.AutoName()
+gb = gc = gd = objname.AutoName()
+ge, gf = objname.AutoName()
 
 
-class GSubclass(name.AutoName):
+class GSubclass(objname.AutoName):
     def __init__(self) -> None:
         super().__init__()
 
@@ -584,16 +584,16 @@ class GNumeric:
         self.__type__ = type
 
 
-class GSymbol(GNumeric, name.AutoName):
+class GSymbol(GNumeric, objname.AutoName):
     def __init__(self, type: object) -> None:
         GNumeric.__init__(self, type)
-        name.AutoName.__init__(self)
+        objname.AutoName.__init__(self)
 
 
 gh = GSymbol(complex)
 
 
-class GAtom(name.AutoName):
+class GAtom(objname.AutoName):
     def __init__(self) -> None:
         super().__init__()
 
@@ -604,7 +604,7 @@ class GAtom(name.AutoName):
 gi, gj, gk = GAtom()
 
 
-class GNumber(name.AutoName):
+class GNumber(objname.AutoName):
     @property
     def custom_attribute_name(self) -> str:
         return self.name
@@ -613,11 +613,11 @@ class GNumber(name.AutoName):
 gl = GNumber()
 
 
-for gp in [name.AutoName()]:
+for gp in [objname.AutoName()]:
     pass
 
 
-for gq, gr in [name.AutoName()]:
+for gq, gr in [objname.AutoName()]:
     pass
 
 
@@ -669,7 +669,7 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         #  6 DUP_TOP
         #  8 STORE_FAST               1 (a)
         # 10 STORE_FAST               2 (b)
-        a = b = name.AutoName()
+        a = b = objname.AutoName()
         self.assertEqual(a.name, "b")
         self.assertEqual(b.name, "b")
 
@@ -677,7 +677,7 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         #  6 UNPACK_SEQUENCE          2
         #  8 STORE_FAST               1 (a)
         # 10 STORE_FAST               2 (b)
-        a, b = name.AutoName()
+        a, b = objname.AutoName()
         self.assertEqual(a.name, "a")
         self.assertEqual(b.name, "b")
 
@@ -687,7 +687,7 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         # 10 UNPACK_SEQUENCE          2
         # 12 STORE_FAST               2 (b)
         # 14 STORE_FAST               3 (c)
-        a = b, c = name.AutoName()
+        a = b, c = objname.AutoName()
         self.assertEqual(a.name, "a")
         self.assertEqual(b.name, "b")
         self.assertEqual(c.name, "c")
@@ -698,7 +698,7 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         # 10 STORE_FAST               1 (a)
         # 12 STORE_FAST               2 (b)
         # 14 STORE_FAST               3 (c)
-        a, b = c = name.AutoName()
+        a, b = c = objname.AutoName()
         self.assertEqual(a.name, "a")
         self.assertEqual(b.name, "b")
         self.assertEqual(c.name, "c")
@@ -711,7 +711,7 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         # 14 UNPACK_SEQUENCE          2
         # 16 STORE_FAST               3 (c)
         # 18 STORE_FAST               4 (d)
-        a = b = c, d = name.AutoName()
+        a = b = c, d = objname.AutoName()
         self.assertEqual(a.name, "b")
         self.assertEqual(b.name, "b")
         self.assertEqual(c.name, "c")
@@ -727,7 +727,7 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
              16 STORE_FAST               3 (c)
              18 STORE_FAST               4 (d)
         """
-        a, b = c = d = name.AutoName()
+        a, b = c = d = objname.AutoName()
         self.assertEqual(a.name, "a")
         self.assertEqual(b.name, "b")
         self.assertEqual(c.name, "d")
@@ -745,7 +745,7 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         # 22 DUP_TOP
         # 24 STORE_FAST               5 (e)
         # 26 STORE_FAST               6 (f)
-        a = b = c, d = e = f = name.AutoName()
+        a = b = c, d = e = f = objname.AutoName()
         self.assertEqual(a.name, "f")
         self.assertEqual(b.name, "f")
         self.assertEqual(c.name, "c")
@@ -765,7 +765,7 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         # 22 UNPACK_SEQUENCE          2
         # 24 STORE_FAST               5 (e)
         # 26 STORE_FAST               6 (f)
-        a, b = c = d = e, f = name.AutoName()
+        a, b = c = d = e, f = objname.AutoName()
         self.assertEqual(a.name, "a")
         self.assertEqual(b.name, "b")
         self.assertEqual(c.name, "d")
@@ -781,12 +781,12 @@ if __name__ == '__main__':
         def __init__(self, type: object) -> None:
             self.__type__ = type
 
-    class NamedObj(TypedObj, name.AutoName):
+    class NamedObj(TypedObj, objname.AutoName):
         def __init__(self, type: object) -> None:
             TypedObj.__init__(self, type)
-            name.AutoName.__init__(self)
+            objname.AutoName.__init__(self)
 
-    class ReprObj(name.AutoName):
+    class ReprObj(objname.AutoName):
         def __repr__(self) -> str:
             return self.name
 

@@ -1,23 +1,23 @@
 "This module was created for test purpose"
 
 
-import name
+import objname
 
 
-class Class(name.AutoName):
+class Class(objname.AutoName):
     pass
 
 
 obj_1 = Class()
 
 
-a = b = name.AutoName()
+a = b = objname.AutoName()
 
 
-c, d = name.AutoName()
+c, d = objname.AutoName()
 
 
-class SubClass(name.AutoName):
+class SubClass(objname.AutoName):
     def __init__(self) -> None:
         super().__init__()
 
@@ -30,16 +30,16 @@ class Numeric:
         self.__type__ = type
 
 
-class Symbol(Numeric, name.AutoName):
+class Symbol(Numeric, objname.AutoName):
     def __init__(self, type: object) -> None:
         Numeric.__init__(self, type)
-        name.AutoName.__init__(self)
+        objname.AutoName.__init__(self)
 
 
 obj_3 = Symbol(complex)
 
 
-class Atom(name.AutoName):
+class Atom(objname.AutoName):
     def __init__(self) -> None:
         super().__init__()
 
@@ -51,12 +51,12 @@ e, f, g = Atom()
 
 
 class Namespace:
-    attr = name.AutoName()
+    attr = objname.AutoName()
 
 
-for h in [name.AutoName()]:
+for h in [objname.AutoName()]:
     pass
 
 
-for i, j in [name.AutoName()]:
+for i, j in [objname.AutoName()]:
     pass
