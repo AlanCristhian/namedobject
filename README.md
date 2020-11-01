@@ -5,11 +5,13 @@ A library with a base class that stores the assigned name of an object.
 ```pycon
 >>> import name
 >>> x, y = name.AutoName()
->>> x.__name__
+>>> x.name
 'x'
->>> y.__name__
+>>> y.name
 'y'
 ```
+
+Official documentation at readthedocs
 
 ## Table Of Contents
 
@@ -21,13 +23,24 @@ A library with a base class that stores the assigned name of an object.
     - [Multiple assignment syntax](#multiple-assygnment)
 - [API reference](#api-refernce)
     - [class AutoName()](#class-auto)
+- [Contribute](#contribute)
+- [Support](#support)
+- [License](#license)
 
 ## Requirements <a name="requirements"></a>
 
 `name` requires Python 3.6 or newer. It has no third-party dependencies and
-works on both POSIX and Windows.
+works on both POSIX and Windows. It runs in cPython and PyPy.
 
 ## Installation <a name="installation"></a>
+
+To install it just use ``pip``:
+
+```shell
+$ pip install name
+```
+
+You can also install it from *github*:
 
 ```shell
 $ pip install git+https://github.com/AlanCristhian/name.git
@@ -36,12 +49,12 @@ $ pip install git+https://github.com/AlanCristhian/name.git
 ## Tutorial <a name="tutorial"></a>
 
 `name` has only one class: `AutoName`. It creates an object with the
-`__name__` attribute that stores the name of such object. E.g:
+`name` attribute that stores the name of such object. E.g:
 
 ```pycon
 >>> import name
 >>> a = name.AutoName()
->>> a.__name__
+>>> a.name
 'a'
 ```
 
@@ -50,25 +63,10 @@ It can make multiple variables with iterable unpacking syntax.
 ```pycon
 >>> import name
 >>> x, y = name.AutoName()
->>> x.__name__
+>>> x.name
 'x'
->>> y.__name__
+>>> y.name
 'y'
-```
-
-`AutoName` is also a *context manager* that you can use in a `with` statement.
-
-```pycon
->>> import name
->>> with name.AutoName() as obj:
-...     obj.__name__
-...
-'obj'
->>> with name.AutoName() as (x, y, z):
-...     (x.__name__, y.__name__, z.__name__)
-...
-('x', 'y', 'z')
->>>
 ```
 
 You can make your own subclass that inherit from `name.AutoName`.
@@ -81,8 +79,8 @@ You can make your own subclass that inherit from `name.AutoName`.
 ...         self.value = value
 ...
 >>> a = Number(1)
->>> a.__name__
-"a"
+>>> a.name
+'a'
 >>> a.value
 1
 ```
@@ -102,9 +100,9 @@ the object was created. If it can't find a name, then the default
 ```pycon
 >>> import name
 >>> a = b = name.AutoName()
->>> a.__name__
+>>> a.name
 'b'
->>> b.__name__
+>>> b.name
 'b'
 ```
 
@@ -113,14 +111,14 @@ That is the same behaviour of `__set_name__` method.
 ```pycon
 >>> class SetName:
 ...     def __set_name__(self, owner, name):
-...         self.__name__ = name
+...         self.name = name
 ...
 >>> class MyClass:
 ...     a = b = SetName()
 ...
->>> MyClass.a.__name__
+>>> MyClass.a.name
 'b'
->>> MyClass.b.__name__
+>>> MyClass.b.name
 'b'
 ```
 
@@ -128,13 +126,13 @@ That is the same behaviour of `__set_name__` method.
 
 ### class AutoName() <a name="class-auto"></a>
 
-Stores the assigned name of an object in the `__name__` attribute.
+Stores the assigned name of an object in the `name` attribute.
 
 Single assignment:
 
 ```pycon
 >>> obj = AutoName()
->>> obj.__name__
+>>> obj.name
 'obj'
 ```
 
@@ -142,17 +140,22 @@ Iterable unpacking syntax:
 
 ```pycon
 >>> a, b = AutoName()
->>> a.__name__
+>>> a.name
 'a'
->>> b.__name__
+>>> b.name
 'b'
 ```
 
-Context manager:
+## Contribute <a name="contribute"></a>
 
-```pycon
->>> with AutoName() as (e, f):
-...     (e.__name__, f.__name__)
-...
-('e', 'f')
-```
+- Issue Tracker: https://github.com/AlanCristhian/name/issues
+- Source Code: https://github.com/AlanCristhian/name
+
+## Support <a name="support"></a>
+
+If you are having issues, please report it at
+[github](https://github.com/AlanCristhian/name/issues)
+
+## License <a name="license"></a>
+
+The project is licensed under the MIT license.
