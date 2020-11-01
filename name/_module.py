@@ -44,7 +44,7 @@ class Atom(name.AutoName):
         super().__init__()
 
     def __repr__(self) -> str:
-        return self.__name__
+        return self.name
 
 
 e, f, g = Atom()
@@ -52,14 +52,6 @@ e, f, g = Atom()
 
 class Namespace:
     attr = name.AutoName()
-
-
-with name.AutoName() as context_0:
-    pass
-
-
-with name.AutoName() as (context_1, context_2):
-    pass
 
 
 for h in [name.AutoName()]:

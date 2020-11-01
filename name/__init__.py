@@ -1,21 +1,21 @@
 """A library with a base class that stores the assigned name of an object.
 
 >>> x, y = AutoName()
->>> x.__name__
+>>> x.name
 'x'
->>> y.__name__
+>>> y.name
 'y'
 """
 
 from collections import deque
 from types import FrameType
-from typing import Iterator, Any, Optional, TypeVar, List, Deque, Tuple
+from typing import Iterator, Optional, TypeVar, List, Deque, Tuple
 import sys
 import copy
 
 
 __all__ = ["AutoName"]
-__version__ = "0.10.4"
+__version__ = "0.11.0"
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -51,25 +51,19 @@ class AutoName:
 
     Single assignment:
     >>> obj = AutoName()
-    >>> obj.__name__
+    >>> obj.name
     'obj'
 
     Iterable unpacking syntax:
     >>> a, b = AutoName()
-    >>> a.__name__
+    >>> a.name
     'a'
-    >>> b.__name__
+    >>> b.name
     'b'
-
-    Context manager:
-    >>> with AutoName() as (e, f):
-    ...     (e.__name__, f.__name__)
-    ...
-    ('e', 'f')
     """
 
     _deepness: int = 1
-    __name__ = "<nameless>"
+    name = "<nameless>"
 
     def __init__(self) -> None:
 
@@ -151,7 +145,7 @@ class AutoName:
 
                 # [NOTE 1]: The correct name is the last one because
                 # that is how __set_name__ behaves in the same situation.
-                self.__name__ = multiple_names[-1]
+                self.name = multiple_names[-1]
         finally:
             del frame
 
@@ -160,14 +154,8 @@ class AutoName:
     def __iter__(self: _T) -> Iterator[_T]:
         for name in self._iterable_names.popleft():
             instance = copy.copy(self)
-            instance.__name__ = name
+            instance.name = name
             yield instance
-
-    def __enter__(self: _T) -> _T:
-        return self
-
-    def __exit__(*args: Any) -> Optional[bool]:
-        pass
 
     def __init_subclass__(cls) -> None:
 

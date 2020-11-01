@@ -12,25 +12,25 @@ class LocalVariableSuite(unittest.TestCase):
 
     def test_single_assignment(self) -> None:
         obj = name.AutoName()
-        self.assertEqual(obj.__name__, "obj")
+        self.assertEqual(obj.name, "obj")
 
     def test_multiple_assignment(self) -> None:
         a = b = c = name.AutoName()
-        self.assertEqual(a.__name__, "c")
-        self.assertEqual(b.__name__, "c")
-        self.assertEqual(c.__name__, "c")
+        self.assertEqual(a.name, "c")
+        self.assertEqual(b.name, "c")
+        self.assertEqual(c.name, "c")
 
     def test_unpacking(self) -> None:
         x, y = name.AutoName()
-        self.assertEqual(x.__name__, "x")
-        self.assertEqual(y.__name__, "y")
+        self.assertEqual(x.name, "x")
+        self.assertEqual(y.name, "y")
 
     def test_subclass(self) -> None:
         class SubClass(name.AutoName):
             def __init__(self) -> None:
                 super().__init__()
         obj = SubClass()
-        self.assertEqual(obj.__name__, "obj")
+        self.assertEqual(obj.name, "obj")
 
     def test_multiple_inheritance(self) -> None:
         class Numeric:
@@ -43,7 +43,7 @@ class LocalVariableSuite(unittest.TestCase):
                 name.AutoName.__init__(self)
 
         x = Symbol(complex)
-        self.assertEqual(x.__name__, "x")
+        self.assertEqual(x.name, "x")
         self.assertEqual(x.__type__, complex)
 
     def test_assignment_in_a_child_class_method(self) -> None:
@@ -55,7 +55,7 @@ class LocalVariableSuite(unittest.TestCase):
                 super().__init__()
 
             def __repr__(self) -> str:
-                return self.__name__
+                return self.name
 
         a, b, c = Atom()
         self.assertEqual(repr((a, b, c)), "(a, b, c)")
@@ -63,50 +63,41 @@ class LocalVariableSuite(unittest.TestCase):
     def test_assigned_name_in_a_namespace(self) -> None:
         class Namespace:
             attr = name.AutoName()
-        self.assertEqual(Namespace.attr.__name__, "attr")
+        self.assertEqual(Namespace.attr.name, "attr")
 
     def test_assigned_name_in_a_property_method(self) -> None:
         class Number(name.AutoName):
             @property
-            def name(self) -> str:
-                return self.__name__
+            def custom_attribute_name(self) -> str:
+                return self.name
         n = Number()
-        self.assertEqual(n.name, "n")
+        self.assertEqual(n.custom_attribute_name, "n")
 
     def test_multiple_assignment_in_namespace(self) -> None:
         class Multiple:
             attr_1 = attr_2 = name.AutoName()
-        self.assertEqual(Multiple.attr_1.__name__, "attr_2")
-        self.assertEqual(Multiple.attr_2.__name__, "attr_2")
-
-    def test_single_assignment_in_context_manager(self) -> None:
-        with name.AutoName() as context_obj:
-            self.assertEqual(context_obj.__name__, "context_obj")
-
-    def test_multiple_assignment_in_context_manager(self) -> None:
-        with name.AutoName() as (context_ob_1, context_ob_2):
-            self.assertEqual(context_ob_1.__name__, "context_ob_1")
-            self.assertEqual(context_ob_2.__name__, "context_ob_2")
+        self.assertEqual(Multiple.attr_1.name, "attr_2")
+        self.assertEqual(Multiple.attr_2.name, "attr_2")
 
     def test_single_var_in_for_loop(self) -> None:
         for x in [name.AutoName()]:
             pass
-        self.assertEqual(x.__name__, "x")
+        self.assertEqual(x.name, "x")
 
     def test_two_vars_in_for_loop(self) -> None:
         for x, y in [name.AutoName()]:
             pass
-        self.assertEqual(x.__name__, "x")
-        self.assertEqual(y.__name__, "y")
+        self.assertEqual(x.name, "x")
+        self.assertEqual(y.name, "y")
 
     def test_default_name(self) -> None:
-        self.assertEqual(name.AutoName().__name__, "<nameless>")
+        self.assertEqual(name.AutoName().name, "<nameless>")
 
     def test_inside_function(self) -> None:
         def function():
             inner = name.AutoName()
             return inner
-        self.assertEqual(function().__name__, "inner")
+        self.assertEqual(function().name, "inner")
 
     def test_extended_arg_opcode(self) -> None:
         _000 = name.AutoName()
@@ -366,13 +357,13 @@ class LocalVariableSuite(unittest.TestCase):
         _254 = name.AutoName()
         _255 = name.AutoName()
         _256 = name.AutoName()
-        self.assertEqual(_256.__name__, "_256")
+        self.assertEqual(_256.name, "_256")
 
     @unittest.skipIf(sys.version_info < (3, 8), "No warlust operator.")
     def test_warlust(self) -> None:
         expression = "\n".join((
             '(x := name.AutoName())',
-            'self.assertEqual(x.__name__, "x")',
+            'self.assertEqual(x.name, "x")',
         ))
         exec(expression)
 
@@ -380,7 +371,7 @@ class LocalVariableSuite(unittest.TestCase):
         class Number(name.AutoName):
             def __init__(self) -> None:
                 super().__init__()
-                self.name = self.__name__
+                self.name = self.name
         n = Number()
         self.assertEqual(n.name, "n")
 
@@ -390,11 +381,11 @@ class LocalVariableSuite(unittest.TestCase):
             def __init__(self):
                 interior = name.AutoName()
                 super().__init__()
-                self.interior = interior.__name__
+                self.interior = interior.name
 
         def namespace():
             exterior = Subclass()
-            self.assertEqual(exterior.__name__, "exterior")
+            self.assertEqual(exterior.name, "exterior")
             self.assertEqual(exterior.interior, "interior")
         namespace()
 
@@ -409,14 +400,14 @@ class LocalVariableSuite(unittest.TestCase):
                 Numeric.__init__(self, type)
 
         foo, var = Variable(int)
-        self.assertEqual(foo.__name__, "foo")
-        self.assertEqual(var.__name__, "var")
+        self.assertEqual(foo.name, "foo")
+        self.assertEqual(var.name, "var")
 
     def test_autoname_instance_as_object_attribute(self) -> None:
         class Object:
             def __init__(self):
                 self.attribute = name.AutoName()
-        obtained = Object().attribute.__name__
+        obtained = Object().attribute.name
         self.assertEqual(obtained, "attribute")
 
 
@@ -430,9 +421,9 @@ class CellVariableSuite(unittest.TestCase):
             return a, b, c
 
         x, y, z = inner()
-        self.assertEqual(x.__name__, "a")
-        self.assertEqual(y.__name__, "b")
-        self.assertEqual(z.__name__, "c")
+        self.assertEqual(x.name, "a")
+        self.assertEqual(y.name, "b")
+        self.assertEqual(z.name, "c")
 
     def test_multiple_assignment(self) -> None:
         a = b = c = name.AutoName()
@@ -441,9 +432,9 @@ class CellVariableSuite(unittest.TestCase):
             return a, b, c
 
         x, y, z = inner()
-        self.assertEqual(x.__name__, "c")
-        self.assertEqual(y.__name__, "c")
-        self.assertEqual(z.__name__, "c")
+        self.assertEqual(x.name, "c")
+        self.assertEqual(y.name, "c")
+        self.assertEqual(z.name, "c")
 
     def test_unpacking(self) -> None:
         a, b, c = name.AutoName()
@@ -452,9 +443,9 @@ class CellVariableSuite(unittest.TestCase):
             return a, b, c
 
         x, y, z = inner()
-        self.assertEqual(x.__name__, "a")
-        self.assertEqual(y.__name__, "b")
-        self.assertEqual(z.__name__, "c")
+        self.assertEqual(x.name, "a")
+        self.assertEqual(y.name, "b")
+        self.assertEqual(z.name, "c")
 
     def test_subclass(self) -> None:
         class SubClass(name.AutoName):
@@ -467,7 +458,7 @@ class CellVariableSuite(unittest.TestCase):
             return a
 
         x = inner()
-        self.assertEqual(x.__name__, "a")
+        self.assertEqual(x.name, "a")
 
     def test_multiple_inheritance(self) -> None:
         class Numeric:
@@ -485,7 +476,7 @@ class CellVariableSuite(unittest.TestCase):
             return x
 
         a = inner()
-        self.assertEqual(a.__name__, "x")
+        self.assertEqual(a.name, "x")
         self.assertEqual(a.__type__, complex)
 
     def test_assignment_in_a_child_class_method(self) -> None:
@@ -494,7 +485,7 @@ class CellVariableSuite(unittest.TestCase):
                 super().__init__()
 
             def __repr__(self) -> str:
-                return self.__name__
+                return self.name
 
         a, b, c = Atom()
 
@@ -507,8 +498,8 @@ class CellVariableSuite(unittest.TestCase):
     def test_assigned_name_in_a_property_method(self) -> None:
         class Number(name.AutoName):
             @property
-            def name(self) -> str:
-                return self.__name__
+            def custom_attribute_name(self) -> str:
+                return self.name
 
         n = Number()
 
@@ -516,57 +507,41 @@ class CellVariableSuite(unittest.TestCase):
             return n
 
         m = inner()
-        self.assertEqual(m.name, "n")
-
-    def test_single_assignment_in_context_manager(self) -> None:
-        with name.AutoName() as context_obj:
-            def inner():
-                return context_obj
-        obj = inner()
-        self.assertEqual(obj.__name__, "context_obj")
-
-    def test_multiple_assignment_in_context_manager(self) -> None:
-        with name.AutoName() as (a, b, c):
-            def inner():
-                return a, b, c
-        x, y, z = inner()
-        self.assertEqual(x.__name__, "a")
-        self.assertEqual(y.__name__, "b")
-        self.assertEqual(z.__name__, "c")
+        self.assertEqual(m.custom_attribute_name, "n")
 
     def test_single_var_in_for_loop(self) -> None:
         for x in [name.AutoName()]:
             def inner():
                 return x
         a = inner()
-        self.assertEqual(a.__name__, "x")
+        self.assertEqual(a.name, "x")
 
     def test_two_vars_in_for_loop(self) -> None:
         for x, y in [name.AutoName()]:
             def inner():
                 return x, y
         a, b = inner()
-        self.assertEqual(x.__name__, "x")
-        self.assertEqual(y.__name__, "y")
+        self.assertEqual(x.name, "x")
+        self.assertEqual(y.name, "y")
 
 
 class ModuleVariableSuite(unittest.TestCase):
     def test_single_assignment(self) -> None:
-        self.assertEqual(_module.obj_1.__name__, "obj_1")
+        self.assertEqual(_module.obj_1.name, "obj_1")
 
     def test_multiple_assignment(self) -> None:
-        self.assertEqual(_module.a.__name__, "b")
-        self.assertEqual(_module.b.__name__, "b")
+        self.assertEqual(_module.a.name, "b")
+        self.assertEqual(_module.b.name, "b")
 
     def test_unpacking(self) -> None:
-        self.assertEqual(_module.c.__name__, "c")
-        self.assertEqual(_module.d.__name__, "d")
+        self.assertEqual(_module.c.name, "c")
+        self.assertEqual(_module.d.name, "d")
 
     def test_subclass(self) -> None:
-        self.assertEqual(_module.obj_2.__name__, "obj_2")
+        self.assertEqual(_module.obj_2.name, "obj_2")
 
     def test_multiple_inheritance(self) -> None:
-        self.assertEqual(_module.obj_3.__name__, "obj_3")
+        self.assertEqual(_module.obj_3.name, "obj_3")
         self.assertEqual(_module.obj_3.__type__, complex)
 
     def test_assignment_in_a_child_class_method(self) -> None:
@@ -577,21 +552,14 @@ class ModuleVariableSuite(unittest.TestCase):
         self.assertEqual(expected, "(e, f, g)")
 
     def test_assigned_name_in_a_namespace(self) -> None:
-        self.assertEqual(_module.Namespace.attr.__name__, "attr")
-
-    def test_single_assignment_in_context_manager(self) -> None:
-        self.assertEqual(_module.context_0.__name__, "context_0")
-
-    def test_multiple_assignment_in_context_manager(self) -> None:
-        self.assertEqual(_module.context_1.__name__, "context_1")
-        self.assertEqual(_module.context_2.__name__, "context_2")
+        self.assertEqual(_module.Namespace.attr.name, "attr")
 
     def test_single_var_in_for_loop(self) -> None:
-        self.assertEqual(_module.h.__name__, "h")
+        self.assertEqual(_module.h.name, "h")
 
     def test_two_vars_in_for_loop(self) -> None:
-        self.assertEqual(_module.i.__name__, "i")
-        self.assertEqual(_module.j.__name__, "j")
+        self.assertEqual(_module.i.name, "i")
+        self.assertEqual(_module.j.name, "j")
 
 
 # Global variables for GlobalVariableSuite
@@ -630,7 +598,7 @@ class GAtom(name.AutoName):
         super().__init__()
 
     def __repr__(self) -> str:
-        return self.__name__
+        return self.name
 
 
 gi, gj, gk = GAtom()
@@ -638,19 +606,11 @@ gi, gj, gk = GAtom()
 
 class GNumber(name.AutoName):
     @property
-    def name(self) -> str:
-        return self.__name__
+    def custom_attribute_name(self) -> str:
+        return self.name
 
 
 gl = GNumber()
-
-
-with name.AutoName() as gm:
-    pass
-
-
-with name.AutoName() as (gn, go):
-    pass
 
 
 for gp in [name.AutoName()]:
@@ -664,26 +624,26 @@ for gq, gr in [name.AutoName()]:
 class GlobalVariableSuite(unittest.TestCase):
     def test_single_assignment(self) -> None:
         global ga
-        self.assertEqual(ga.__name__, "ga")
+        self.assertEqual(ga.name, "ga")
 
     def test_multiple_assignment(self) -> None:
         global gb, gc, gd
-        self.assertEqual(gb.__name__, "gd")
-        self.assertEqual(gc.__name__, "gd")
-        self.assertEqual(gd.__name__, "gd")
+        self.assertEqual(gb.name, "gd")
+        self.assertEqual(gc.name, "gd")
+        self.assertEqual(gd.name, "gd")
 
     def test_unpacking(self) -> None:
         global ge, gf
-        self.assertEqual(ge.__name__, "ge")
-        self.assertEqual(gf.__name__, "gf")
+        self.assertEqual(ge.name, "ge")
+        self.assertEqual(gf.name, "gf")
 
     def test_subclass(self) -> None:
         global gg
-        self.assertEqual(gg.__name__, "gg")
+        self.assertEqual(gg.name, "gg")
 
     def test_multiple_inheritance(self) -> None:
         global gh
-        self.assertEqual(gh.__name__, "gh")
+        self.assertEqual(gh.name, "gh")
         self.assertEqual(gh.__type__, complex)
 
     def test_assignment_in_a_child_class_method(self) -> None:
@@ -692,25 +652,16 @@ class GlobalVariableSuite(unittest.TestCase):
 
     def test_assigned_name_in_a_property_method(self) -> None:
         global gl
-        self.assertEqual(gl.name, "gl")
-
-    def test_single_assignment_in_context_manager(self) -> None:
-        global gm
-        self.assertEqual(gm.__name__, "gm")
-
-    def test_multiple_assignment_in_context_manager(self) -> None:
-        global gn, go
-        self.assertEqual(gn.__name__, "gn")
-        self.assertEqual(go.__name__, "go")
+        self.assertEqual(gl.custom_attribute_name, "gl")
 
     def test_single_var_in_for_loop(self) -> None:
         global gp
-        self.assertEqual(gp.__name__, "gp")
+        self.assertEqual(gp.name, "gp")
 
     def test_two_vars_in_for_loop(self) -> None:
         global gq, gr
-        self.assertEqual(gq.__name__, "gq")
-        self.assertEqual(gr.__name__, "gr")
+        self.assertEqual(gq.name, "gq")
+        self.assertEqual(gr.name, "gr")
 
 
 class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
@@ -719,16 +670,16 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         #  8 STORE_FAST               1 (a)
         # 10 STORE_FAST               2 (b)
         a = b = name.AutoName()
-        self.assertEqual(a.__name__, "b")
-        self.assertEqual(b.__name__, "b")
+        self.assertEqual(a.name, "b")
+        self.assertEqual(b.name, "b")
 
     def test_1(self) -> None:
         #  6 UNPACK_SEQUENCE          2
         #  8 STORE_FAST               1 (a)
         # 10 STORE_FAST               2 (b)
         a, b = name.AutoName()
-        self.assertEqual(a.__name__, "a")
-        self.assertEqual(b.__name__, "b")
+        self.assertEqual(a.name, "a")
+        self.assertEqual(b.name, "b")
 
     def test_2(self) -> None:
         #  6 DUP_TOP
@@ -737,9 +688,9 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         # 12 STORE_FAST               2 (b)
         # 14 STORE_FAST               3 (c)
         a = b, c = name.AutoName()
-        self.assertEqual(a.__name__, "a")
-        self.assertEqual(b.__name__, "b")
-        self.assertEqual(c.__name__, "c")
+        self.assertEqual(a.name, "a")
+        self.assertEqual(b.name, "b")
+        self.assertEqual(c.name, "c")
 
     def test_3(self) -> None:
         #  6 DUP_TOP
@@ -748,9 +699,9 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         # 12 STORE_FAST               2 (b)
         # 14 STORE_FAST               3 (c)
         a, b = c = name.AutoName()
-        self.assertEqual(a.__name__, "a")
-        self.assertEqual(b.__name__, "b")
-        self.assertEqual(c.__name__, "c")
+        self.assertEqual(a.name, "a")
+        self.assertEqual(b.name, "b")
+        self.assertEqual(c.name, "c")
 
     def test_4(self) -> None:
         #  6 DUP_TOP
@@ -761,10 +712,10 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         # 16 STORE_FAST               3 (c)
         # 18 STORE_FAST               4 (d)
         a = b = c, d = name.AutoName()
-        self.assertEqual(a.__name__, "b")
-        self.assertEqual(b.__name__, "b")
-        self.assertEqual(c.__name__, "c")
-        self.assertEqual(d.__name__, "d")
+        self.assertEqual(a.name, "b")
+        self.assertEqual(b.name, "b")
+        self.assertEqual(c.name, "c")
+        self.assertEqual(d.name, "d")
 
     def test_5(self) -> None:
         """ multiple and unpacking
@@ -777,10 +728,10 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
              18 STORE_FAST               4 (d)
         """
         a, b = c = d = name.AutoName()
-        self.assertEqual(a.__name__, "a")
-        self.assertEqual(b.__name__, "b")
-        self.assertEqual(c.__name__, "d")
-        self.assertEqual(d.__name__, "d")
+        self.assertEqual(a.name, "a")
+        self.assertEqual(b.name, "b")
+        self.assertEqual(c.name, "d")
+        self.assertEqual(d.name, "d")
 
     def test_6(self) -> None:
         #  6 DUP_TOP
@@ -795,12 +746,12 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         # 24 STORE_FAST               5 (e)
         # 26 STORE_FAST               6 (f)
         a = b = c, d = e = f = name.AutoName()
-        self.assertEqual(a.__name__, "f")
-        self.assertEqual(b.__name__, "f")
-        self.assertEqual(c.__name__, "c")
-        self.assertEqual(d.__name__, "d")
-        self.assertEqual(e.__name__, "f")
-        self.assertEqual(f.__name__, "f")
+        self.assertEqual(a.name, "f")
+        self.assertEqual(b.name, "f")
+        self.assertEqual(c.name, "c")
+        self.assertEqual(d.name, "d")
+        self.assertEqual(e.name, "f")
+        self.assertEqual(f.name, "f")
 
     def test_7(self):
         #  6 DUP_TOP
@@ -815,12 +766,12 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         # 24 STORE_FAST               5 (e)
         # 26 STORE_FAST               6 (f)
         a, b = c = d = e, f = name.AutoName()
-        self.assertEqual(a.__name__, "a")
-        self.assertEqual(b.__name__, "b")
-        self.assertEqual(c.__name__, "d")
-        self.assertEqual(d.__name__, "d")
-        self.assertEqual(e.__name__, "e")
-        self.assertEqual(f.__name__, "f")
+        self.assertEqual(a.name, "a")
+        self.assertEqual(b.name, "b")
+        self.assertEqual(c.name, "d")
+        self.assertEqual(d.name, "d")
+        self.assertEqual(e.name, "e")
+        self.assertEqual(f.name, "f")
 
 
 if __name__ == '__main__':
@@ -837,7 +788,7 @@ if __name__ == '__main__':
 
     class ReprObj(name.AutoName):
         def __repr__(self) -> str:
-            return self.__name__
+            return self.name
 
     class Variable(ReprObj, NamedObj):
         def __init__(self, type: object) -> None:
@@ -846,8 +797,8 @@ if __name__ == '__main__':
 
     foo, var = Variable(int)
 
-    assert foo.__name__ == "foo"
-    assert var.__name__ == "var"
+    assert foo.name == "foo"
+    assert var.name == "var"
     assert foo.__type__ == int
     assert var.__type__ == int
 
