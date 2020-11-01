@@ -1,16 +1,16 @@
-.. name documentation master file, created by
+.. objname documentation master file, created by
    sphinx-quickstart on Sat Oct 10 19:33:22 2020.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to name's documentation!
-================================
+Welcome to objname's documentation!
+===================================
 
-``name`` is a library with a base class that stores the assigned name of an
+``objname`` is a library with a base class that stores the assigned name of an
 object::
 
-    >>> import name
-    >>> x, y = name.AutoName()
+    >>> import objname
+    >>> x, y = objname.AutoName()
     >>> x.name
     'x'
     >>> y.name

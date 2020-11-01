@@ -1,18 +1,18 @@
 Tutorial
 --------
 
-``name`` has only one class: ``AutoName``. It creates an object with the
-``name`` attribute that stores the name of such object. E.g: ::
+``objname`` has only one class: ``AutoName``. It creates an object with the
+``objname`` attribute that stores the name of such object. E.g: ::
 
-    >>> import name
-    >>> a = name.AutoName()
+    >>> import objname
+    >>> a = objname.AutoName()
     >>> a.name
     'a'
 
 It can make multiple variables with iterable unpacking syntax. ::
 
-    >>> import name
-    >>> x, y = name.AutoName()
+    >>> import objname
+    >>> x, y = objname.AutoName()
     >>> x.name
     'x'
     >>> y.name
@@ -20,8 +20,8 @@ It can make multiple variables with iterable unpacking syntax. ::
 
 You can make your own subclass that inherit from ``name.AutoName``. ::
 
-    >>> import name
-    >>> class Number(name.AutoName):
+    >>> import objname
+    >>> class Number(objname.AutoName):
     ...     def __init__(self, value):
     ...         super().__init__()
     ...         self.value = value

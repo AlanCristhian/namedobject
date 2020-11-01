@@ -13,8 +13,8 @@ Multiple assignment syntax
 
 ``AutoName`` stores the last name in the expression. ::
 
-    >>> import name
-    >>> a = b = name.AutoName()
+    >>> import objname
+    >>> a = b = objname.AutoName()
     >>> a.name
     'b'
     >>> b.name

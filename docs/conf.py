@@ -17,9 +17,11 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'name'
+project = 'objname'
 copyright = '2020, Alan Cristhian Ruiz'
 author = 'Alan Cristhian Ruiz'
+version = '0.11.0'
+release = '0.11.0'
 
 
 # -- General configuration ---------------------------------------------------
