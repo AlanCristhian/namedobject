@@ -1,3 +1,4 @@
+from typing import Tuple
 import sys
 import unittest
 
@@ -94,7 +95,7 @@ class LocalVariableSuite(unittest.TestCase):
         self.assertEqual(objname.AutoName().name, "<nameless>")
 
     def test_inside_function(self) -> None:
-        def function():
+        def function() -> objname.AutoName:
             inner = objname.AutoName()
             return inner
         self.assertEqual(function().name, "inner")
@@ -375,21 +376,21 @@ class LocalVariableSuite(unittest.TestCase):
         n = Number()
         self.assertEqual(n.name, "n")
 
-    def test_name_collision(self):
+    def test_name_collision(self) -> None:
         "Test that the name is searched in the correct namespace"
         class Subclass(objname.AutoName):
-            def __init__(self):
+            def __init__(self) -> None:
                 interior = objname.AutoName()
                 super().__init__()
                 self.interior = interior.name
 
-        def namespace():
+        def namespace() -> None:
             exterior = Subclass()
             self.assertEqual(exterior.name, "exterior")
             self.assertEqual(exterior.interior, "interior")
         namespace()
 
-    def test_subclass_arguments(self):
+    def test_subclass_arguments(self) -> None:
         class Numeric:
             def __init__(self, type: object) -> None:
                 self.__type__ = type
@@ -405,8 +406,9 @@ class LocalVariableSuite(unittest.TestCase):
 
     def test_autoname_instance_as_object_attribute(self) -> None:
         class Object:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.attribute = objname.AutoName()
+
         obtained = Object().attribute.name
         self.assertEqual(obtained, "attribute")
 
@@ -416,8 +418,9 @@ class CellVariableSuite(unittest.TestCase):
         a = objname.AutoName()
         b = objname.AutoName()
         c = objname.AutoName()
+        T = Tuple[objname.AutoName, objname.AutoName, objname.AutoName]
 
-        def inner():
+        def inner() -> T:
             return a, b, c
 
         x, y, z = inner()
@@ -427,8 +430,9 @@ class CellVariableSuite(unittest.TestCase):
 
     def test_multiple_assignment(self) -> None:
         a = b = c = objname.AutoName()
+        T = Tuple[objname.AutoName, objname.AutoName, objname.AutoName]
 
-        def inner():
+        def inner() -> T:
             return a, b, c
 
         x, y, z = inner()
@@ -438,8 +442,9 @@ class CellVariableSuite(unittest.TestCase):
 
     def test_unpacking(self) -> None:
         a, b, c = objname.AutoName()
+        T = Tuple[objname.AutoName, objname.AutoName, objname.AutoName]
 
-        def inner():
+        def inner() -> T:
             return a, b, c
 
         x, y, z = inner()
@@ -454,7 +459,7 @@ class CellVariableSuite(unittest.TestCase):
 
         a = SubClass()
 
-        def inner():
+        def inner() -> SubClass:
             return a
 
         x = inner()
@@ -472,7 +477,7 @@ class CellVariableSuite(unittest.TestCase):
 
         x = Symbol(complex)
 
-        def inner():
+        def inner() -> Symbol:
             return x
 
         a = inner()
@@ -489,7 +494,7 @@ class CellVariableSuite(unittest.TestCase):
 
         a, b, c = Atom()
 
-        def inner():
+        def inner() -> Tuple[Atom, Atom, Atom]:
             return a, b, c
 
         x, y, z = inner()
@@ -503,7 +508,7 @@ class CellVariableSuite(unittest.TestCase):
 
         n = Number()
 
-        def inner():
+        def inner() -> Number:
             return n
 
         m = inner()
@@ -511,14 +516,14 @@ class CellVariableSuite(unittest.TestCase):
 
     def test_single_var_in_for_loop(self) -> None:
         for x in [objname.AutoName()]:
-            def inner():
+            def inner() -> objname.AutoName:
                 return x
         a = inner()
         self.assertEqual(a.name, "x")
 
     def test_two_vars_in_for_loop(self) -> None:
         for x, y in [objname.AutoName()]:
-            def inner():
+            def inner() -> Tuple[objname.AutoName, objname.AutoName]:
                 return x, y
         a, b = inner()
         self.assertEqual(x.name, "x")
@@ -753,7 +758,7 @@ class IterableUnpackingAndMultipleAssignmentCase(unittest.TestCase):
         self.assertEqual(e.name, "f")
         self.assertEqual(f.name, "f")
 
-    def test_7(self):
+    def test_7(self) -> None:
         #  6 DUP_TOP
         #  8 UNPACK_SEQUENCE          2
         # 10 STORE_FAST               1 (a)

@@ -3,7 +3,7 @@ import time
 import objname
 
 
-def single_assignment():
+def single_assignment() -> None:
     start = time.monotonic()
     for i in range(100_000):
         a = objname.AutoName()
@@ -13,7 +13,7 @@ def single_assignment():
     print(f"single_assignment {end - start:0.4g} seconds")
 
 
-def unpack_sequence():
+def unpack_sequence() -> None:
     start = time.monotonic()
     for i in range(100_000):
         a, b, c = objname.AutoName()
