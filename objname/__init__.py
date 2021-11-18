@@ -9,13 +9,12 @@
 
 from collections import deque
 from types import FrameType
-from typing import Iterator, Optional, TypeVar, List, Deque, Tuple
+from typing import Iterator, Optional, TypeVar, List, Deque, Tuple, Any, Dict
 import sys
-import copy
 
 
 __all__ = ["AutoName"]
-__version__ = "0.11.0"
+__version__ = "0.12.0"
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -63,9 +62,27 @@ class AutoName:
     """
 
     _deepness: int = 1
+    _args: Tuple[Any, ...]
+    _kwargs: Dict[str, Any]
     name = "<nameless>"
 
+    def __new__(
+        cls,
+        *args: Tuple[Any, ...],
+        **kwargs: Dict[str, Any]
+    ) -> "AutoName":
+        new_obj: AutoName = super().__new__(cls)
+        new_obj._args = args
+        new_obj._kwargs = kwargs
+        return new_obj
+
     def __init__(self) -> None:
+        frame = _get_frame(self._deepness)
+        if frame:
+            if frame.f_code.co_name == "__iter__":
+                return
+        else:
+            return
 
         # Here it will be stored the names needed
         # for the iterable unpacking syntax.
@@ -75,11 +92,8 @@ class AutoName:
         # multiple assignment syntax. That is why it store them all.
         multiple_names: List[str] = []
         slices: List[Tuple[int, int]] = []
-        frame = _get_frame(self._deepness)
         delta = 0
         try:
-            if not frame:
-                return
             STORED_NAMES = {
                 90: frame.f_code.co_names,      # STORE_NAME
                 95: frame.f_code.co_names,      # STORE_ATTR
@@ -153,7 +167,8 @@ class AutoName:
     # with iterable unpacking syntax.
     def __iter__(self: _T) -> Iterator[_T]:
         for name in self._iterable_names.popleft():
-            instance = copy.copy(self)
+            instance = type(self)(
+                *self._args, **self._kwargs)  # type: ignore[call-arg]
             instance.name = name
             yield instance
 
