@@ -168,7 +168,7 @@ class AutoName:
     def __iter__(self: _T) -> Iterator[_T]:
         for name in self._iterable_names.popleft():
             instance = type(self)(
-                *self._args, **self._kwargs)  # type: ignore[call-arg]
+                *self._args, **self._kwargs)
             instance.name = name
             yield instance
 
