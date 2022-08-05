@@ -10,11 +10,22 @@
 from collections import deque
 from types import FrameType
 from typing import Iterator, Optional, TypeVar, List, Deque, Tuple, Any, Dict
+import opcode
 import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.12.0"
+__version__ = "0.12.1"
+
+
+# Get opcode numeric values from the opcode library
+# because that numbers can change between versions
+_EXTENDED_ARG = opcode.opmap["EXTENDED_ARG"]
+_STORE_NAME = opcode.opmap["STORE_NAME"]
+_STORE_ATTR = opcode.opmap["STORE_ATTR"]
+_STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
+_STORE_FAST = opcode.opmap["STORE_FAST"]
+_STORE_DEREF = opcode.opmap["STORE_DEREF"]
 
 
 _T = TypeVar("_T", bound="AutoName")
@@ -22,9 +33,17 @@ _T = TypeVar("_T", bound="AutoName")
 
 # Instructions related with store the name of an object somewhere.
 _ALLOWED_INSTRUCTIONS = {
-    4,    # DUP_TOP
-    144,  # EXTENDED_ARG
+    _EXTENDED_ARG,
 }
+
+
+# Some opcodes has been deleted, and some others has been added.
+# So I need to check wich python version to fill the following set.
+if sys.version_info >= (3, 11, 0, "alpha", 0):
+    _ALLOWED_INSTRUCTIONS.add(opcode.opmap["COPY"])
+    _ALLOWED_INSTRUCTIONS.add(opcode.opmap["CACHE"])
+else:
+    _ALLOWED_INSTRUCTIONS.add(opcode.opmap["DUP_TOP"])
 
 
 # Get the frame where the object was created
@@ -95,12 +114,14 @@ class AutoName:
         delta = 0
         try:
             STORED_NAMES = {
-                90: frame.f_code.co_names,      # STORE_NAME
-                95: frame.f_code.co_names,      # STORE_ATTR
-                97: frame.f_code.co_names,      # STORE_GLOBAL
-                125: frame.f_code.co_varnames,  # STORE_FAST
-                137: frame.f_code.co_cellvars,  # STORE_DEREF
+                _STORE_NAME: frame.f_code.co_names,
+                _STORE_ATTR: frame.f_code.co_names,
+                _STORE_GLOBAL: frame.f_code.co_names,
+                _STORE_FAST: frame.f_code.co_varnames,
+                _STORE_DEREF: frame.f_code.co_cellvars,
             }
+            VARNAME_FROM_OPARG = (
+                STORED_NAMES[_STORE_FAST] + STORED_NAMES[_STORE_DEREF])
             bytecode = frame.f_code.co_code
 
             # f_lasti indicates the position of the last bytecode instruction.
@@ -136,7 +157,15 @@ class AutoName:
                 elif instruction in STORED_NAMES:
                     index = extended_arg | bytecode[i + 1]
                     extended_arg = 0
-                    name = STORED_NAMES[instruction][index]
+                    try:
+                        name = STORED_NAMES[instruction][index]
+
+                    # Following error happens on python 3.11
+                    except IndexError as error:
+                        if hasattr(frame.f_code, "_varname_from_oparg"):
+                            name = VARNAME_FROM_OPARG[index]
+                        else:
+                            raise error
                     multiple_names.append(name)
                 elif multiple_names:
                     if instruction not in _ALLOWED_INSTRUCTIONS:
