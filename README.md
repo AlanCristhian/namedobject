@@ -23,6 +23,7 @@ Official documentation at readthedocs: https://objname.readthedocs.io/en/latest/
     - [Multiple assignment syntax](#multiple-assygnment)
 - [API reference](#api-refernce)
     - [class AutoName()](#class-auto)
+    - [class AutoNameAttr(attr: str)](#class-autonameattr)
 - [Contribute](#contribute)
 - [Donation](#donation)
 - [License](#license)
@@ -122,6 +123,28 @@ That is the same behaviour of `__set_name__` method.
 'b'
 ```
 
+### The AutoNameAttr class
+
+The `AutoNameAttr` metaclass creates a class that assign the name to an
+user defined attribute. For example, you want to assign the name to the
+`__name__` attribute instead of `.name`.
+
+```pycon
+>>> AutoName__name__ = AutoNameAttr("__name__")
+>>> class MyClass(AutoName__name__):
+...     pass
+...
+>>> my_obj = MyClass()
+>>> my_obj.__name__
+'my_obj'
+>>> my_obj.name
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AttributeError: 'MyClass' object has no attribute 'name'
+```
+
+As you can see, it only assign the name to the choosen attribute.
+
 ## API reference <a name="api-refernce"></a>
 
 ### class AutoName() <a name="class-auto"></a>
@@ -144,6 +167,27 @@ Iterable unpacking syntax:
 'a'
 >>> b.name
 'b'
+```
+
+### class:: AutoNameAttr(attr: str) <a name="class-autonameattr"></a>
+
+Creates a class that stores the assigned name of an object in the ``attr``
+attribute.
+
+Example, you want to store the object name in the ``__name__`` attribute:
+
+```pycon
+>>> AutoName__name__ = AutoNameAttr("__name__")
+>>> class MyClass(AutoName__name__):
+...     pass
+...
+>>> my_obj = MyClass()
+>>> my_obj.__name__
+'my_obj'
+>>> my_obj.name
+Traceback (most recent call last):
+File "<stdin>", line 1, in <module>
+AttributeError: 'MyClass' object has no attribute 'name'
 ```
 
 ## Contribute <a name="contribute"></a>

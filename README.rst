@@ -92,6 +92,27 @@ That is the same behaviour of ``__set_name__`` method. ::
     >>> MyClass.b.name
     'b'
 
+The AutoNameAttr metaclass
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``AutoNameAttr`` metaclass creates a class that assign the name to an
+user defined attribute. For example, you want to assign the name to the
+``__name__`` attribute instead of ``.name``::
+
+   >>> AutoName__name__ = AutoNameAttr("__name__")
+   >>> class MyClass(AutoName__name__):
+   ...     pass
+   ...
+   >>> my_obj = MyClass()
+   >>> my_obj.__name__
+   'my_obj'
+   >>> my_obj.name
+   Traceback (most recent call last):
+     File "<stdin>", line 1, in <module>
+   AttributeError: 'MyClass' object has no attribute 'name'
+
+As you can see, it only assign the name to the choosen attribute.
+
 API reference
 -------------
 
@@ -112,6 +133,25 @@ API reference
        'a'
        >>> b.name
        'b'
+
+.. class:: AutoNameAttr(attr: str)
+
+   Creates a class that stores the assigned name of an object in the ``attr``
+   attribute.
+
+   Example, you want to store the object name in the ``__name__`` attribute: ::
+
+      >>> AutoName__name__ = AutoNameAttr("__name__")
+      >>> class MyClass(AutoName__name__):
+      ...     pass
+      ...
+      >>> my_obj = MyClass()
+      >>> my_obj.__name__
+      'my_obj'
+      >>> my_obj.name
+      Traceback (most recent call last):
+        File "<stdin>", line 1, in <module>
+      AttributeError: 'MyClass' object has no attribute 'name'
 
 Contribute
 ----------
