@@ -15,11 +15,13 @@ import sys
 
 
 __all__ = ["AutoName"]
-__version__ = "0.12.1"
+__version__ = "0.12.2"
 
 
 # Get opcode numeric values from the opcode library
 # because that numbers can change between versions
+_EXTENDED_ARG = opcode.opmap["EXTENDED_ARG"]
+_UNPACK_SEQUENCE = opcode.opmap["UNPACK_SEQUENCE"]
 _EXTENDED_ARG = opcode.opmap["EXTENDED_ARG"]
 _STORE_NAME = opcode.opmap["STORE_NAME"]
 _STORE_ATTR = opcode.opmap["STORE_ATTR"]
@@ -139,7 +141,7 @@ class AutoName:
             # attribute co_* of frame.f_code.
             for i in range(start, stop, 2):
                 instruction = bytecode[i]
-                if instruction == 92:  # UNPACK_SEQUENCE
+                if instruction == _UNPACK_SEQUENCE:
 
                     # count is the amount of variables that want to unpack
                     count = extended_arg | bytecode[i + 1]
@@ -152,7 +154,7 @@ class AutoName:
                     slice_ = (begin - delta, end - delta)
                     slices.append(slice_)
                     delta = end - begin
-                elif instruction == 144:  # EXTENDED_ARG
+                elif instruction == _EXTENDED_ARG:
                     extended_arg |= bytecode[i + 1] << 8  # compute the index
                 elif instruction in STORED_NAMES:
                     index = extended_arg | bytecode[i + 1]
@@ -196,8 +198,7 @@ class AutoName:
     # with iterable unpacking syntax.
     def __iter__(self: _T) -> Iterator[_T]:
         for name in self._iterable_names.popleft():
-            instance = type(self)(
-                *self._args, **self._kwargs)
+            instance = type(self)(*self._args, **self._kwargs)
             instance.name = name
             yield instance
 
